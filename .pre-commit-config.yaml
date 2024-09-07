@@ -2,11 +2,11 @@
 # R specific hooks: https://github.com/lorenzwalthert/precommit
 repos:
 -   repo: https://github.com/lorenzwalthert/precommit
-    rev: v0.4.3
+    rev: v0.4.2
     hooks:
     -   id: style-files
-        args: [--style_pkg=styler, --style_fun=tidyverse_style]    
-    -   id: roxygenize
+        args: [--style_pkg=styler, --style_fun=tidyverse_style]
+    #-   id: roxygenize
     # codemeta must be above use-tidy-description when both are used
     # -   id: codemeta-description-updated
     -   id: use-tidy-description
@@ -50,7 +50,7 @@ repos:
     -   id: pkgdown
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
-    hooks: 
+    hooks:
     -   id: check-added-large-files
         args: ['--maxkb=200']
     -   id: file-contents-sorter
@@ -66,9 +66,9 @@ repos:
     hooks:
     -   id: forbid-to-commit
         name: Don't commit common R artifacts
-        entry: Cannot commit .Rhistory, .RData, .Rds or .rds.
+        entry: Cannot commit .Rhistory, or .RData.
         language: fail
-        files: '\.(Rhistory|RData|Rds|rds)$'
+        files: '\.(Rhistory|RData)$'
         # `exclude: <regex>` to allow committing specific files
 
 ci:
