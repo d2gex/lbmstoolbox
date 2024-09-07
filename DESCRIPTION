@@ -1,0 +1,12 @@
+Package: lbmstoolbox
+Type: Package
+Title: LBMS Toolbox
+Version: 1.0.0
+Date: 2024-09-07
+Authors@R: person(given = "Dan",
+             family = "G",
+             role = c("aut", "cre"),
+             email = "dgarcia@iim.csic.es")
+Maintainer: Dan G <dgarcia@iim.csic.es>
+Description: A toolbox that integrates and provides various length-based methods for small-scale fisheries assessment, offering enhanced features.
+License: MIT Licens
