@@ -11,3 +11,12 @@ Description: A toolbox that integrates and provides various length-based
     features.
 License: MIT License
 Encoding: UTF-8
+RoxygenNote: 7.3.2
+Imports:
+    R6,
+    data.table,
+    logger,
+    dplyr,
+    LIME
+Remotes:
+    github::d2gex/LIME
