@@ -7,7 +7,7 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
     super$initialize(biology_params, explotation_params, catch_data)
   },
   prepare_catch_data = function(data) {
-    return(data.table::transpose(data))
+    return(self$transpose(data))
   },
   # @formatter:off
   #' @description

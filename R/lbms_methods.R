@@ -23,9 +23,28 @@ Lbms <- R6::R6Class("Lbms", public = list( # nolint
     self$explotation_params <- explotation_params
     self$catch_data <- catch_data
   },
+  # @formatter:off
   #' @description
   #' It prepares the length frequency data for the algorithm digestion
   #'
   #' @param data a wide dataframe with lengths as rows and timestep as columns
-  prepare_catch_data = function(data) { }
+  # @formatter:on
+  prepare_catch_data = function(data) { },
+  transpose = function(data, row_as_numeric = TRUE, as_matrix = TRUE) {
+    if (row_as_numeric) {
+      col_names <- unlist(lapply(names(data), function(x) {
+        gsub("[^0-9]", "", x)
+      }))
+      names(data) <- col_names
+    }
+    data_t <- t(data)
+    # Get first row as column names
+    colnames(data_t) <- data_t[1, ]
+    data_t <- data_t[2:nrow(data_t), ]
+
+    if (as_matrix) {
+      return(data_t)
+    }
+    return(as.data.frame(data_t))
+  }
 ))
