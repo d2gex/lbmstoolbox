@@ -4,7 +4,11 @@
 \alias{LimeModelFittingBuilder}
 \title{LimeModelFittingBuilder class}
 \value{
+A list of dataframes with the expected catch and fished/unfished population
+
 a dataframe with the real standarised relative real and standarised expected catch
+
+a dataframe with the unfished and fished population
 }
 \description{
 it generates two dataframes containing information about the estimated vs real catch as well as
@@ -16,6 +20,8 @@ the estimated unfished vs fished population. It does not apply any depletion thr
 \item{\code{catch_data}}{list of long and wide dataframes}
 
 \item{\code{mid_points}}{vector of modelled lengths by LIME}
+
+\item{\code{ages}}{integer vector}
 
 \item{\code{estimated_catch}}{estimated catch three-dimensional matrix}
 
@@ -31,7 +37,9 @@ the estimated unfished vs fished population. It does not apply any depletion thr
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-LimeModelFittingBuilder-new}{\code{LimeModelFittingBuilder$new()}}
+\item \href{#method-LimeModelFittingBuilder-generate_model_info}{\code{LimeModelFittingBuilder$generate_model_info()}}
 \item \href{#method-LimeModelFittingBuilder-build_catch_df}{\code{LimeModelFittingBuilder$build_catch_df()}}
+\item \href{#method-LimeModelFittingBuilder-build_population_df}{\code{LimeModelFittingBuilder$build_population_df()}}
 \item \href{#method-LimeModelFittingBuilder-clone}{\code{LimeModelFittingBuilder$clone()}}
 }
 }
@@ -44,6 +52,7 @@ Initialise the class
 \if{html}{\out{<div class="r">}}\preformatted{LimeModelFittingBuilder$new(
   catch_data,
   mid_points,
+  ages,
   estimated_catch,
   fished_population,
   unfished_population
@@ -67,6 +76,17 @@ Initialise the class
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LimeModelFittingBuilder-generate_model_info"></a>}}
+\if{latex}{\out{\hypertarget{method-LimeModelFittingBuilder-generate_model_info}{}}}
+\subsection{Method \code{generate_model_info()}}{
+Generates the model fitting information (relative catch at length and relative fished and unfished population
+at age)
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LimeModelFittingBuilder$generate_model_info()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LimeModelFittingBuilder-build_catch_df"></a>}}
 \if{latex}{\out{\hypertarget{method-LimeModelFittingBuilder-build_catch_df}{}}}
 \subsection{Method \code{build_catch_df()}}{
@@ -74,6 +94,17 @@ Builds a catch dataframe with the relative and expected catch. Both data are sta
 (divided by their total sum)
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LimeModelFittingBuilder$build_catch_df()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LimeModelFittingBuilder-build_population_df"></a>}}
+\if{latex}{\out{\hypertarget{method-LimeModelFittingBuilder-build_population_df}{}}}
+\subsection{Method \code{build_population_df()}}{
+Builds a population dataframe with expected unfished and fished population. Both data are standarised
+(divided by their total sum). The expected values are relative to age rather than length.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LimeModelFittingBuilder$build_population_df()}\if{html}{\out{</div>}}
 }
 
 }
