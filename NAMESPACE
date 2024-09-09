@@ -2,3 +2,4 @@
 
 export(Lbms)
 export(LimeLbms)
+export(LimeModelFittingBuilder)

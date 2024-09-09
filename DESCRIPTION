@@ -17,6 +17,9 @@ Imports:
     data.table,
     logger,
     dplyr,
-    LIME
+    LIME,
+    assertr,
+    purrr,
+    tidyr
 Remotes:
     github::d2gex/LIME

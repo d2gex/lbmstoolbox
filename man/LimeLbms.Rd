@@ -28,12 +28,19 @@ it wraps the LIME algorithm providing a common and similar interface to other lb
 \item \href{#method-LimeLbms-clone}{\code{LimeLbms$clone()}}
 }
 }
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="lbmstoolbox" data-topic="Lbms" data-id="transpose"><a href='../../lbmstoolbox/html/Lbms.html#method-Lbms-transpose'><code>lbmstoolbox::Lbms$transpose()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LimeLbms-new"></a>}}
 \if{latex}{\out{\hypertarget{method-LimeLbms-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LimeLbms$new(biology_params, explotation_params, catch_data)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LimeLbms$new(biological_params, explotation_params, catch_data)}\if{html}{\out{</div>}}
 }
 
 }

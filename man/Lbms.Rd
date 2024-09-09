@@ -22,6 +22,7 @@ Base class providing common interface and parammeters for all algorithms
 \itemize{
 \item \href{#method-Lbms-new}{\code{Lbms$new()}}
 \item \href{#method-Lbms-prepare_catch_data}{\code{Lbms$prepare_catch_data()}}
+\item \href{#method-Lbms-transpose}{\code{Lbms$transpose()}}
 \item \href{#method-Lbms-clone}{\code{Lbms$clone()}}
 }
 }
@@ -66,6 +67,15 @@ It prepares the length frequency data for the algorithm digestion
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Lbms-transpose"></a>}}
+\if{latex}{\out{\hypertarget{method-Lbms-transpose}{}}}
+\subsection{Method \code{transpose()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Lbms$transpose(data, row_as_numeric = TRUE, as_matrix = TRUE)}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Lbms-clone"></a>}}
