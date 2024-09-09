@@ -9,6 +9,8 @@ LimeModelFittingBuilder <- R6::R6Class("LimeModelFittingBuilder", public = list(
   catch_data = NULL,
   #' @field mid_points vector of modelled lengths by LIME
   mid_points = NULL,
+  #' @field ages integer vector
+  ages = NULL,
   #' @field estimated_catch estimated catch three-dimensional matrix
   estimated_catch = NULL, # plb
   #' @field fished_population estimated fished population matrix
@@ -26,12 +28,27 @@ LimeModelFittingBuilder <- R6::R6Class("LimeModelFittingBuilder", public = list(
   #' @param fished_population estimated fished population matrix
   #' @export
   # @formatter:on
-  initialize = function(catch_data, mid_points, estimated_catch, fished_population, unfished_population) {
+  initialize = function(catch_data, mid_points, ages, estimated_catch, fished_population, unfished_population) {
     self$catch_data <- catch_data
     self$mid_points <- mid_points
+    self$ages <- ages
     self$estimated_catch <- estimated_catch
     self$fished_population <- fished_population
     self$unfished_population <- unfished_population
+  },
+  # @formatter:off
+  #' @description
+  #' Generates the model fitting information (relative catch at length and relative fished and unfished population
+  #' at age)
+  #'
+  #' @returns A list of dataframes with the expected catch and fished/unfished population
+  #' @export
+  # @formatter:on
+  generate_model_info = function() {
+    return(list(
+      catch = self$build_catch_df(),
+      population = self$build_population_df()
+    ))
   },
   # @formatter:off
   #' @description
@@ -48,6 +65,33 @@ LimeModelFittingBuilder <- R6::R6Class("LimeModelFittingBuilder", public = list(
     return(
       purrr::reduce(list(real_catch, exp_catch), dplyr::full_join, by = c("year", "lengths"))
     )
+  },
+  # @formatter:off
+  #' @description
+  #' Builds a population dataframe with expected unfished and fished population. Both data are standarised
+  #' (divided by their total sum). The expected values are relative to age rather than length.
+  #'
+  #' @returns a dataframe with the unfished and fished population
+  #' @export
+  # @formatter:on
+  build_population_df = function() {
+    populations <- list(self$fished_population, self$unfished_population)
+    pop_col_names <- c("unfished_pop", "fished_pop")
+    population_df <-
+      purrr::reduce(lapply(seq_along(populations), function(offset) {
+        # Get relevant details for each population and convert it to a dataframe
+        col_name <- pop_col_names[offset]
+        df <- as.data.frame(populations[[offset]])
+        names(df) <- self$ages
+        df$year <- unique(self$catch_data$long$year)
+
+        # Build a long dataframe with relative population for each population type
+        df <- df %>%
+          tidyr::pivot_longer(!year, names_to = "age", values_to = col_name) %>%
+          dplyr::mutate(age = as.numeric(age)) %>%
+          dplyr::mutate(!!col_name := get(col_name) / sum(get(col_name))) # make it relative
+      }), dplyr::full_join, by = c("year", "age"))
+    return(population_df)
   }
 ), private = list(
   build_catch_dataframe = function() {
