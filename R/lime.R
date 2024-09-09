@@ -3,8 +3,8 @@
 #' @description
 #' it wraps the LIME algorithm providing a common and similar interface to other lbms such as LBSPR
 LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
-  initialize = function(biology_params, explotation_params, catch_data) {
-    super$initialize(biology_params, explotation_params, catch_data)
+  initialize = function(biological_params, explotation_params, catch_data) {
+    super$initialize(biological_params, explotation_params, catch_data)
   },
   prepare_catch_data = function(data) {
     return(self$transpose(data))
@@ -18,17 +18,17 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
   # @formatter:on
   build_lht_context = function(extra_lht_details = NULL) {
     bio_selc_details <- list(
-      linf = self$biology_params$linf,
-      vbk = self$biology_params$k,
-      t0 = self$biology_params$t0,
-      lwa = self$biology_params$lwa,
-      lwb = self$biology_params$lwb,
-      M50 = self$biology_params$l50,
-      M = self$biology_params$M,
-      AgeMax = self$biology_params$max_age,
+      linf = self$biological_params$linf,
+      vbk = self$biological_params$k,
+      t0 = self$biological_params$t0,
+      lwa = self$biological_params$lwa,
+      lwb = self$biological_params$lwb,
+      M50 = self$biological_params$l50,
+      M = self$biological_params$M,
+      AgeMax = self$biological_params$max_age,
       S50 = self$explotation_params$s50,
       S95 = self$explotation_params$s95,
-      SigmaR = self$biology_params$rec_variability_sd,
+      SigmaR = self$biological_params$rec_variability_sd,
       SigmaF = self$explotation_params$sigmaF
     )
 
@@ -76,7 +76,7 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
     # Build run alrguments
     run_args <- list(
       input = lfh_inputs,
-      SigRprior = c(self$biology_params$rec_variability_mean, self$biology_params$rec_variability_sd)
+      SigRprior = c(self$biological_params$rec_variability_mean, self$biological_params$rec_variability_sd)
     )
     if (is.null(extra_run_context)) {
       run_args <- c(run_args, list(
