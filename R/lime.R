@@ -94,8 +94,10 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
     # Run LIME
     result <- do.call(LIME::run_LIME, run_args)
     if (!is.atomic(result$Report)) {
+      evaluation <- list()
+      simulation <- list()
       # Fetch results
-      output <- data.frame(
+      estimates <- data.frame(
         years = years,
         SL50 = result$Report$S50_f,
         SL95 = result$Report$S95_f,
@@ -105,33 +107,46 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
         SSB = result$Report$SB_t
       )
       if (run_args$derive_quants) {
-        output$Fmsy <- result$Report$F_y
-        output$F30 <- result$Derived$F30
-        output$F40 <- result$Derived$F40
-        output$FF30 <- result$Derived$FF30
-        output$FF40 <- result$Derived$FF40
+        estimates$Fmsy <- result$Report$F_y
+        estimates$F30 <- result$Derived$F30
+        estimates$F40 <- result$Derived$F40
+        estimates$FF30 <- result$Derived$FF30
+        estimates$FF40 <- result$Derived$FF40
       }
       if (!is.atomic(result$Sdreport)) {
-        output$hessian <- result$Sdreport$pdHess
-        output$convergence <- result$opt$max_gradient <= 0.001 & result$Sdreport$pdHess == TRUE
-        output$max_gradient <- result$opt$max_gradient
+        estimates$hessian <- result$Sdreport$pdHess
+        estimates$convergence <- result$opt$max_gradient <= 0.001 & result$Sdreport$pdHess == TRUE
+        estimates$max_gradient <- result$opt$max_gradient
       } else {
-        output$hessian <- NA
-        output$convergence <- NA
-        output$max_gradient <- NA
+        estimates$hessian <- NA
+        estimates$convergence <- NA
+        estimates$max_gradient <- NA
       }
     } else {
-      output <- NULL
+      estimates <- NULL
       logger::log_error("---> LIME could not produce any result")
     }
-    algo_details <- list(years = years, estimates = output)
-    if (is.null(output)) {
-      algo_details$raw_details <- NULL
-    } else {
-      algo_details$raw_details <- list(inputs = result$Inputs, report = result$Report, sd_report = result$Sdreport)
+    if (is.null(estimates)) {
+      return(NULL)
     }
-
-    return(algo_details)
+    model_fitting_builder <- LimeModelFittingBuilder$new(
+      self$catch_data,
+      result$Inputs$Data$lbhighs,
+      result$Inputs$Data$match_ages,
+      result$Report$plb,
+      result$Report$N_ta,
+      result$Report$N_ta0
+    )
+    model_info <- model_fitting_builder$generate_model_info()
+    raw_details <- list(inputs = result$Inputs, report = result$Report, sd_report = result$Sdreport)
+    output <- list(
+      evaluation = list(estimates = estimates),
+      simulation = list(
+        model_info = model_info,
+        raw_details = raw_details
+      )
+    )
+    return(output)
   }
 ), private = list(
   # @formatter:off
