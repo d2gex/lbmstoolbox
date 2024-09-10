@@ -98,7 +98,9 @@ LimeModelFittingBuilder <- R6::R6Class("LimeModelFittingBuilder", public = list(
     catch_df <- self$catch_data$long %>%
       dplyr::group_by(year, MeanLength) %>%
       dplyr::summarise(real_catch = sum(catch), .groups = "drop") %>%
+      dplyr::group_by(year) %>%
       dplyr::mutate(relative_catch = real_catch / sum(real_catch)) %>%
+      dplyr::ungroup() %>%
       dplyr::rename(c("lengths" = "MeanLength"))
     return(catch_df)
   },
@@ -116,8 +118,10 @@ LimeModelFittingBuilder <- R6::R6Class("LimeModelFittingBuilder", public = list(
     exp_catch_df <- exp_catch_df %>%
       tidyr::pivot_longer(!year, names_to = "lengths", values_to = "exp_catch") %>%
       dplyr::mutate(lengths = as.numeric(lengths)) %>%
+      dplyr::filter((lengths >= min_mid_point) & (lengths <= max_mid_point)) %>% # crop
+      dplyr::group_by(year) %>%
       dplyr::mutate(exp_catch = exp_catch / sum(exp_catch)) %>% # make it relative
-      dplyr::filter((lengths >= min_mid_point) & (lengths <= max_mid_point)) # crop
+      dplyr::ungroup()
 
     return(exp_catch_df)
   }
