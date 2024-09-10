@@ -75,7 +75,7 @@ LimeModelFittingBuilder <- R6::R6Class("LimeModelFittingBuilder", public = list(
   #' @export
   # @formatter:on
   build_population_df = function() {
-    populations <- list(self$fished_population, self$unfished_population)
+    populations <- list(self$unfished_population, self$fished_population)
     pop_col_names <- c("unfished_pop", "fished_pop")
     population_df <-
       purrr::reduce(lapply(seq_along(populations), function(offset) {
@@ -89,7 +89,9 @@ LimeModelFittingBuilder <- R6::R6Class("LimeModelFittingBuilder", public = list(
         df <- df %>%
           tidyr::pivot_longer(!year, names_to = "age", values_to = col_name) %>%
           dplyr::mutate(age = as.numeric(age)) %>%
-          dplyr::mutate(!!col_name := get(col_name) / sum(get(col_name))) # make it relative
+          dplyr::group_by(year) %>%
+          dplyr::mutate(!!col_name := get(col_name) / sum(get(col_name))) %>% # make it relative
+          dplyr::ungroup()
       }), dplyr::full_join, by = c("year", "age"))
     return(population_df)
   }
