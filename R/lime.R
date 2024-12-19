@@ -64,7 +64,7 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
   #' While catch is relative to lengths, population details are to ages given that LIME is an age-structured algorithm.
   #' All vectors are standarised by dividing them by their total sum.
   # @formatter:on
-  run = function(lht_context, extra_run_context = NULL) {
+  run = function(lht_context, extra_run_context = NULL, simul = TRUE) {
     # Prepare matrix as expected by LIME
     lc_matrix_t <- self$prepare_catch_data(self$catch_data$wide)
     years <- as.integer(rownames(lc_matrix_t))
@@ -129,15 +129,20 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
     if (is.null(estimates)) {
       return(NULL)
     }
-    model_fitting_builder <- LimeModelFittingBuilder$new(
-      self$catch_data,
-      result$Inputs$Data$lbhighs,
-      result$Inputs$Data$match_ages,
-      result$Report$plb,
-      result$Report$N_ta,
-      result$Report$N_ta0
-    )
-    model_info <- model_fitting_builder$generate_model_info()
+    if (simul == TRUE) {
+      model_fitting_builder <- LimeModelFittingBuilder$new(
+        self$catch_data,
+        result$Inputs$Data$lbhighs,
+        result$Inputs$Data$match_ages,
+        result$Report$plb,
+        result$Report$N_ta,
+        result$Report$N_ta0
+      )
+      model_info <- model_fitting_builder$generate_model_info()
+    } else {
+      model_info <- NULL
+    }
+
     raw_details <- list(inputs = result$Inputs, report = result$Report, sd_report = result$Sdreport)
     output <- list(
       evaluation = list(estimates = estimates),
