@@ -109,7 +109,8 @@ LimeModelFittingBuilder <- R6::R6Class("LimeModelFittingBuilder", public = list(
   build_expected_catch_dataframe = function() {
     # (1) Reconstruct wide dataframe with year and midpoints
     exp_catch_df <- as.data.frame(self$estimated_catch)
-    names(exp_catch_df) <- self$mid_points
+    mid_points <- self$mid_points[seq_along(exp_catch_df)]
+    names(exp_catch_df) <- mid_points
     exp_catch_df$year <- unique(self$catch_data$long$year)
 
     # (2) Turn it into a long one with relative estimated catch and cropped mid points to match the real catch
