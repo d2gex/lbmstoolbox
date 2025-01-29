@@ -47,4 +47,6 @@ Lbms <- R6::R6Class("Lbms", public = list( # nolint
     }
     return(as.data.frame(data_t))
   }
+), private = list(
+  get_confidence_intervals = function(data) { }
 ))

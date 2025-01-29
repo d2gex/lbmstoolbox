@@ -106,6 +106,12 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
         R = result$Report$R,
         SSB = result$Report$SB_t
       )
+
+      # calculate confidence intervals
+      estimates_boundaries <- private$get_confidence_intervals(result)
+      estimates$lower_spr <- estimates_boundaries$lower
+      estimates$upper_spr <- estimates_boundaries$upper
+
       if (run_args$derive_quants) {
         estimates$Fmsy <- result$Report$F_y
         estimates$F30 <- result$Derived$F30
@@ -183,6 +189,18 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
       s50 = summary_details$MeanLength[s50_offset],
       s95 = summary_details$MeanLength[s95_offset],
       max_length = max_length
+    ))
+  },
+  get_confidence_intervals = function(data) {
+    report <- data$Sdreport
+    inputs <- data$Inputs
+    sd <- summary(report)[which(rownames(summary(report)) == "SPR_t"), ]
+    sd[, 2][which(is.na(sd[, 2]))] <- 0
+    sd <- sd[seq(1, by = 1, length.out = inputs$Data$n_y), ]
+    index <- which(is.na(sd[, 2]) == FALSE)
+    return(list(
+      lower = sd[index, 1] - 1.96 * sd[, 2],
+      upper = sd[index, 1] + 1.96 * sd[, 2]
     ))
   }
 ))
