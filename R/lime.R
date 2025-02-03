@@ -108,9 +108,9 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
       )
 
       # calculate confidence intervals
-      estimates_boundaries <- private$get_confidence_intervals(result)
-      estimates$lower_spr <- estimates_boundaries$lower
-      estimates$upper_spr <- estimates_boundaries$upper
+      ci_df <- private$get_confidence_intervals(result)
+      estimates <- estimates %>%
+        dplyr::full_join(ci_df, by = "years")
 
       if (run_args$derive_quants) {
         estimates$Fmsy <- result$Report$F_y
@@ -193,14 +193,35 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
   },
   get_confidence_intervals = function(data) {
     report <- data$Sdreport
-    inputs <- data$Inputs
-    sd <- summary(report)[which(rownames(summary(report)) == "SPR_t"), ]
-    sd[, 2][which(is.na(sd[, 2]))] <- 0
-    sd <- sd[seq(1, by = 1, length.out = inputs$Data$n_y), ]
-    index <- which(is.na(sd[, 2]) == FALSE)
-    return(list(
-      lower = sd[index, 1] - 1.96 * sd[, 2],
-      upper = sd[index, 1] + 1.96 * sd[, 2]
-    ))
+    variables <- c(
+      SPR_t = FALSE,
+      lR_t = TRUE,
+      lF_y = TRUE
+    )
+
+    ci_interval_df <- data.frame(
+      years = data$input$years
+    )
+    num_years <- nrow(ci_interval_df)
+    for (var_name in names(variables)) {
+      is_log <- variables[var_name]
+      sd <- summary(report)[which(rownames(summary(report)) == var_name), ]
+      sd[, 2][which(is.na(sd[, 2]))] <- 0
+      sd <- sd[seq(1, by = 1, length.out = num_years), ]
+      ci_data <- LIME::read_sdreport(sd, log = is_log)
+      if (var_name == "SPR_t") {
+        suffix <- "spr"
+      } else if (var_name == "lR_t") {
+        suffix <- "rec"
+      } else {
+        suffix <- "fishing"
+      }
+      ci_interval_df <- ci_interval_df %>%
+        dplyr::mutate(
+          !!paste0("lower_", suffix) := ci_data[1:num_years],
+          !!paste0("upper_", suffix) := ci_data[(num_years + 1):length(ci_data)]
+        )
+    }
+    return(ci_interval_df)
   }
 ))
