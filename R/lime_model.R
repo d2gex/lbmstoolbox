@@ -1,7 +1,7 @@
 #' @title LimeLbms class
 #'
 #' @description
-#' it wraps the LIME algorithm providing a common and similar interface to other lbms such as LBSPR
+#' it wraps the LIME algorithm providing a common and similar interface to other lbms methods
 LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
   initialize = function(biological_params, explotation_params, catch_data) {
     super$initialize(biological_params, explotation_params, catch_data)
@@ -136,7 +136,7 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
       return(NULL)
     }
     if (simul == TRUE) {
-      model_fitting_builder <- LimeModelFittingBuilder$new(
+      model_fitting_builder <- LimeSimulation$new(
         self$catch_data,
         result$Inputs$Data$lbhighs,
         result$Inputs$Data$match_ages,
@@ -144,7 +144,7 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
         result$Report$N_ta,
         result$Report$N_ta0
       )
-      model_info <- model_fitting_builder$generate_model_info()
+      model_info <- model_fitting_builder$run()
     } else {
       model_info <- NULL
     }
@@ -160,37 +160,6 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
     return(output)
   }
 ), private = list(
-  # @formatter:off
-  #' Finds the minumum, maximum, and starting values for SL50 and SL95
-  # @formatter:off
-  find_sl50_from_matrix = function(data) {
-    summary_details <- data %>%
-      dplyr::group_by(MeanLength) %>%
-      dplyr::summarise(total_catch = sum(catch)) %>%
-      dplyr::ungroup() %>%
-      dplyr::select(MeanLength, total_catch)
-
-    min_length <- summary_details %>%
-      dplyr::filter(MeanLength == min(MeanLength)) %>%
-      dplyr::select(MeanLength)
-    min_length <- as.numeric(min_length)
-
-    max_length <- summary_details %>%
-      dplyr::filter(total_catch == max(total_catch)) %>%
-      dplyr::select(MeanLength)
-    max_length <- as.numeric(max_length)
-
-    max_length_offset <- which(summary_details$MeanLength == max_length)
-    s50_offset <- ceiling((1 + max_length_offset) / 2)
-    s95_offset <- ceiling((3 / 4) * (1 + max_length_offset))
-
-    return(list(
-      min_length = min_length,
-      s50 = summary_details$MeanLength[s50_offset],
-      s95 = summary_details$MeanLength[s95_offset],
-      max_length = max_length
-    ))
-  },
   get_confidence_intervals = function(data) {
     report <- data$Sdreport
     variables <- c(

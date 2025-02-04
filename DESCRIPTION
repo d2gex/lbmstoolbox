@@ -20,6 +20,7 @@ Imports:
     LIME,
     assertr,
     purrr,
-    tidyr
+    tidyr,
+    LBSPR
 Remotes:
     github::d2gex/LIME

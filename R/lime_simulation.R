@@ -1,9 +1,9 @@
-#' @title LimeModelFittingBuilder class
+#' @title LimeSimulation class
 #'
 #' @description
 #' it generates two dataframes containing information about the estimated vs real catch as well as
 #' the estimated unfished vs fished population. It does not apply any depletion threshold for the unfished population.
-LimeModelFittingBuilder <- R6::R6Class("LimeModelFittingBuilder", public = list( # nolint
+LimeSimulation <- R6::R6Class("LimeSimulation", public = list( # nolint
   # @formatter:off
   #' @field catch_data list of long and wide dataframes
   catch_data = NULL,
@@ -44,7 +44,7 @@ LimeModelFittingBuilder <- R6::R6Class("LimeModelFittingBuilder", public = list(
   #' @returns A list of dataframes with the expected catch and fished/unfished population
   #' @export
   # @formatter:on
-  generate_model_info = function() {
+  run = function() {
     return(list(
       catch = self$build_catch_df(),
       population = self$build_population_df()

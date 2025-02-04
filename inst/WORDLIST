@@ -1,3 +1,4 @@
+analysed
 assertr
 aut
 cloneable
@@ -14,11 +15,14 @@ lbms
 Lbms
 lbmstoolbox
 LBSPR
+LbsprLbms
+LbsprSimulation
 lht
 LHT
 LIME's
 LimeLbms
 LimeModelFittingBuilder
+LimeSimulation
 minumum
 modelled
 parammeters

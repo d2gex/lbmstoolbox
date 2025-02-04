@@ -37,15 +37,28 @@ Lbms <- R6::R6Class("Lbms", public = list( # nolint
       }))
       names(data) <- col_names
     }
-    data_t <- t(data)
-    # Get first row as column names
-    colnames(data_t) <- data_t[1, ]
-    data_t <- data_t[2:nrow(data_t), ]
+    if (length(data) == 2) { # only one year of data, avoid conversion to array
+      data_t <- t(as.matrix(data[, 2]))
+      colnames(data_t) <- unlist(data[, 1]) # assign lengths as column names
+      rownames(data_t) <- colnames(data)[2] # assign single year as row name
+    } else {
+      data_t <- t(as.matrix(data))
+      # Get first row as column names
+      colnames(data_t) <- data_t[1, ]
+      data_t <- data_t[2:nrow(data_t), ]
+    }
 
     if (as_matrix) {
       return(data_t)
     }
     return(as.data.frame(data_t))
+  },
+  df_to_unname_matrix = function(data, from_col = NULL, to_col = NULL) {
+    from_col <- ifelse(is.null(from_col), 1, from_col)
+    to_col <- ifelse(is.null(to_col), length(names(data)), to_col)
+    return(
+      unname(as.matrix(data[, from_col:to_col]))
+    )
   }
 ), private = list(
   get_confidence_intervals = function(data) { }

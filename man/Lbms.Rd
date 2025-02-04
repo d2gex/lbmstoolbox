@@ -23,6 +23,7 @@ Base class providing common interface and parammeters for all algorithms
 \item \href{#method-Lbms-new}{\code{Lbms$new()}}
 \item \href{#method-Lbms-prepare_catch_data}{\code{Lbms$prepare_catch_data()}}
 \item \href{#method-Lbms-transpose}{\code{Lbms$transpose()}}
+\item \href{#method-Lbms-df_to_unname_matrix}{\code{Lbms$df_to_unname_matrix()}}
 \item \href{#method-Lbms-clone}{\code{Lbms$clone()}}
 }
 }
@@ -74,6 +75,15 @@ It prepares the length frequency data for the algorithm digestion
 \subsection{Method \code{transpose()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Lbms$transpose(data, row_as_numeric = TRUE, as_matrix = TRUE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Lbms-df_to_unname_matrix"></a>}}
+\if{latex}{\out{\hypertarget{method-Lbms-df_to_unname_matrix}{}}}
+\subsection{Method \code{df_to_unname_matrix()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Lbms$df_to_unname_matrix(data, from_col = NULL, to_col = NULL)}\if{html}{\out{</div>}}
 }
 
 }
