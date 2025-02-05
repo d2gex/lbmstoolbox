@@ -2,6 +2,7 @@ analysed
 assertr
 aut
 cloneable
+contrib
 cre
 csic
 dgarcia
@@ -9,8 +10,11 @@ dplyr
 gex
 ggplot
 github
+https
 iim
 Initialise
+io
+kaskr
 knitr
 LBMS
 lbms
@@ -26,6 +30,7 @@ LIME's
 LimeLbms
 LimeModelFittingBuilder
 LimeSimulation
+merrillrudd
 minumum
 modelled
 obtaiend
@@ -39,6 +44,8 @@ SPR
 Standardised
 standarised
 tidyr
+TMB
+TMBhelper
 un
 unfished
 vigenette
