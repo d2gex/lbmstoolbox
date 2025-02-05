@@ -26,6 +26,5 @@ Remotes:
     github::d2gex/LIME
 Suggests: 
     knitr,
-    rmarkdown,
-    ggplot2
+    rmarkdown
 VignetteBuilder: knitr
