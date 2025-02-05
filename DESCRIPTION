@@ -24,3 +24,8 @@ Imports:
     LBSPR
 Remotes:
     github::d2gex/LIME
+Suggests: 
+    knitr,
+    rmarkdown,
+    ggplot2
+VignetteBuilder: knitr

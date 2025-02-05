@@ -1,0 +1,182 @@
+---
+title: "LB-SPR tutorial"
+output: rmarkdown::html_vignette
+vignette: >
+%\VignetteIndexEntry{lbspr_use_case}
+%\VignetteEngine{knitr::rmarkdown}
+%\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+# 1. Installing `lbmstoolbox` package
+For this vigenette to work this package must be installed and exist in whatever R's libpath of yours. To do so you
+can install it widely on the system by using `devtools::install_github(..)` or locally by `renv::install`. if ran interactively,
+ensure that the working directory is set to the `vignettes` folder - use `setwd` as suits you best.
+
+# 2. Read sampling data
+A data sample has been provided to showcase how both algorithm interfaces work. The first element of the list is the catch's
+length composition that the model will assess. This structure, in turn, stores two dataframes: i) a **long** one where years and
+lengths are laid as rows and ii) a **wide** one where years are set as columns and lengths as rows. Both dataframes contain `MeanLength`,
+the name of the column holding the length classes.
+
+The second element is a list with the biological parameters of the species being evaluated, which we will call `spp.demersal`.
+
+```{r read_sampling_data}
+spp_sampling_details <- readRDS("data/spp_test_data.rds")
+```
+## 2.1 Showcase long dataframe
+```{r long_dataframe_showcase}
+catch_data <- spp_sampling_details$catch_data
+catch_data$long %>%
+  head(6)
+```
+## 2.2 Showcase wide dataframe
+```{r wide_dataframe_showcase}
+catch_data$wide %>%
+  head(6)
+```
+## 2.3 Showcase wide dataframe
+```{r biological_parameters}
+spp_sampling_details$bio_params
+```
+# 3. Run LB-SPR
+
+## 3.1 Build biological parameters required by LB-SPR
+Please visit [LBSPR documentation](https://adrianhordyk.github.io/LBSPR/articles/LBSPR.html) for further details. `fecb`
+defines the relationship between size and fecundity. By default, LB-SPR sets it to 3. We use the provided `b` exponent
+obtaiend from the weight-length relationship.
+
+```{r biological_parameters_lbspr}
+bio_params <- spp_sampling_details$bio_params
+
+# We need to provide MK
+bio_params$mk <- round(bio_params$M / bio_params$M, 2)
+# ... And get rid of those that not required
+bio_params$M <- NULL
+bio_params$t0 <- NULL
+bio_params$max_age <- NULL
+bio_params$rec_variability_mean <- NULL
+bio_params$rec_variability_sd <- NULL
+bio_params
+```
+## 3.2 Run LB-SPR
+If LB-SPR is run with the flag `simul` set to TRUE, re-runs the simulation function to provide extra details for each
+time step used as follows:
+
+- Observed catch-at-length
+- Relative observed catch-at-length (each catch is divided by the maximum)
+- Standardised length structure of the underlying fished population
+- Standardised length structure of the underlying unfished population
+- Standardised estimated catch as a result of applying the estimated selectivity to the estimated fished population
+- Standardised estimated catch as a result of applying the estimated selectivity to the estimated unfished population
+
+```{r run_lbspr}
+iim_lbspr <- lbmstoolbox::LbsprLbms$new(
+  bio_params,
+  catch_data
+)
+result_lbspr <- iim_lbspr$run(simul = TRUE)
+```
+## 3.3 Breaking down results
+The results are broke down into two main categories: i) **evaluation** where estimates of the model can be found and
+ii) **simulation** where the aforementioned extra details can be found. Within this section, the raw details yielded by
+the simulation function can be found, should you be interested in doing more with it.
+
+In addition, the estimate dataframe provide the confidence intervals of `FM` and `SPR`. These columns are prefix by
+`lower` and `upper`, respectively.
+
+### 3.3.1 Estimates dataframe
+```{r lbspr_estimates}
+result_lbspr$evaluation$estimates %>%
+  head(3)
+```
+
+### 3.3.2 Simulation dataframes
+Below an example of the simulation dataframe for one single time step. The relevant columns are:
+
+- `unfished_pop`: length structure of the unfished population.
+- `fished_pop`: length structure of the fished population.
+- `unfished_vul`: estimated catch yielded by the estimated unfished population and selectivity.
+- `expected_catch`: estimated catch yielded by the estimated fished population and selectivity.
+- `real_catch`: observed catch in absolute numbers
+- `relative_catch`: Relative-to-maximum observed catch
+-
+
+```{r lbspr_simulation}
+result_lbspr$simulation$model_info %>%
+  head(3)
+```
+# 4. Plot examples
+
+## 4.1 Estimates plot
+A quick example on how to plot SPR and its confidence interval is shown below.
+
+```{r lbspr_estimate_plots}
+estimates <- result_lbspr$evaluation$estimates
+g <- estimates %>%
+  ggplot2::ggplot(ggplot2::aes(x = years, y = SPR)) +
+  ggplot2::geom_point() +
+  ggplot2::geom_line() +
+  ggplot2::geom_ribbon(ggplot2::aes(x = years, ymin = lower_spr, ymax = upper_spr, fill = "maroon2", alpha = 0.1)) +
+  ggplot2::theme_bw() +
+  ggplot2::theme(legend.position = "none")
+
+g
+```
+## 4.2 Simulation plot
+Below two different plots are displayed. The first one shows the estimated catch from both the estimated fished and unfished
+length structured for year 2015. The second one plots the estimated fished and unfished populations for the same year.
+
+### 4.2.1 Estimated catch
+
+```{r lbspr_estimate_catch_plots}
+catch_2015 <- result_lbspr$simulation$model_info %>%
+  dplyr::filter(year == 2015) %>%
+  dplyr::select(lengths, unfished_vul, exp_catch) %>%
+  tidyr::pivot_longer(!lengths, names_to = "variables", values_to = "values")
+
+g <- catch_2015 %>%
+  ggplot2::ggplot(ggplot2::aes(x = lengths, y = values, color = variables)) +
+  ggplot2::geom_point() +
+  ggplot2::geom_line() +
+  ggplot2::xlab("Lengths") +
+  ggplot2::ylab("Standardised relative catch") +
+  ggplot2::scale_color_manual(
+    name = "Catch Type",
+    values = c(
+      unfished_vul = "seagreen",
+      exp_catch = "tomato"
+    )
+  )
+
+g
+```
+### 4.2.1 Estimated populations
+
+```{r lbspr_estimate_population_plots}
+catch_2015 <- result_lbspr$simulation$model_info %>%
+  dplyr::filter(year == 2015) %>%
+  dplyr::select(lengths, unfished_pop, fished_pop) %>%
+  tidyr::pivot_longer(!lengths, names_to = "variables", values_to = "values")
+
+g <- catch_2015 %>%
+  ggplot2::ggplot(ggplot2::aes(x = lengths, y = values, color = variables)) +
+  ggplot2::geom_point() +
+  ggplot2::geom_line() +
+  ggplot2::xlab("Lengths") +
+  ggplot2::ylab("Standardised relative populations") +
+  ggplot2::scale_color_manual(
+    name = "Catch Type",
+    values = c(
+      unfished_pop = "seagreen",
+      fished_pop = "tomato"
+    )
+  )
+
+g
+```

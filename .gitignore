@@ -50,3 +50,4 @@ rsconnect/
 
 .idea
 .test.R
+inst/doc
