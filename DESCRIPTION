@@ -12,6 +12,8 @@ Description: A toolbox that integrates and provides various length-based
 License: MIT License
 Encoding: UTF-8
 RoxygenNote: 7.3.2
+Depends:
+    R (== 4.2.2)
 Imports:
     R6,
     data.table,
@@ -23,7 +25,6 @@ Imports:
     tidyr,
     LBSPR
 Remotes:
-    github::kaskr/TMB_contrib_R/TMBhelper,
     github::d2gex/LIME
 Suggests: 
     knitr,
