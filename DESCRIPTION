@@ -25,7 +25,7 @@ Imports:
     tidyr,
     LBSPR
 Remotes:
-    github::d2gex/LIME
+    github::merrillrudd/LIME
 Suggests: 
     knitr,
     rmarkdown
