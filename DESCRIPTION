@@ -23,7 +23,7 @@ Imports:
     tidyr,
     LBSPR
 Remotes:
-    github::kaskr/TMB_contrib_R/TMBhelper
+    github::kaskr/TMB_contrib_R/TMBhelper,
     github::d2gex/LIME
 Suggests: 
     knitr,
