@@ -30,6 +30,7 @@ minumum
 modelled
 obtaiend
 parammeters
+pkgdown
 purrr
 rmarkdown
 RoxygenNote
@@ -42,3 +43,4 @@ un
 unfished
 vigenette
 VignetteBuilder
+yml
