@@ -1,0 +1,197 @@
+---
+title: "LIME tutorial"
+output: rmarkdown::html_vignette
+vignette: >
+%\VignetteIndexEntry{lbspr_use_case}
+%\VignetteEngine{knitr::rmarkdown}
+%\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+# 1. Installing `lbmstoolbox` package
+For this vigenette to work this package must be installed and exist in whatever R's libpath of yours. To do so you
+can install it widely on the system by using `devtools::install_github(..)` or locally by `renv::install`. if ran interactively,
+ensure that the working directory is set to the `vignettes` folder - use `setwd` as suits you best.
+
+# 2. Read sampling and biological data
+Please see [station_and_receptors](../articles/lbspr_use_case.html) for further details about what to the model expects from the required input parameters.
+
+```{r read_sampling_data}
+spp_sampling_details <- readRDS("data/spp_test_data.rds")
+catch_data <- spp_sampling_details$catch_data
+```
+
+# 3. Run LIME model
+
+## 3.1 Build biological parameters required by LIME
+Please visit [LIME documentation](https://github.com/merrillrudd/LIME/blob/master/vignettes/LIME.pdf) for further details.
+
+The biological parameters here provided contains the union of those required by LB-SPR and LIME. Let's strip off LBSPR's
+specific parameters. In addition, it is important to pay attention to two special parameters: i) `rec_variability_mean` and `rec_variability_sd` are the mean and standard deviation of control distribution applied to the estimates of recruitment, to avoid this parameter to shoot out unrealistically (Rudd and Thorson, 2017). The values of such variables were obtained from Thorson et al., 2014.
+
+```{r biological_parameters_IME}
+bio_params <- spp_sampling_details$bio_params
+bio_params$fecb <- NULL
+bio_params
+```
+## 3.2 Build exploitation parameters required by LIME
+Unlike LB-SPR, LIME needs selectivity priors and a penalty to constraint the potential estimated values of the fishing mortality from year to year (Rudd and Thorson, 2017). Rudd and Thorson, 2017 therefore suggests to calculate the SL50 as the halfway length between the first one observed in the length composition and that of the mode. Then SL95 is calculated as `SL50 * 1.15`, in the same fashion as defined by Prince et al., 2022 for the maturation ogive. As for the fishing mortality prior, the default 0.2 value was taken (Rudd and Thorson, 2017).
+
+```{r exploitation_parameters_IME}
+summary_catch <- catch_data$long %>%
+  dplyr::select(MeanLength, catch) %>%
+  dplyr::group_by(MeanLength) %>%
+  dplyr::summarise(total_catch = sum(catch))
+catch_mode <- summary_catch$MeanLength[which.max(summary_catch$total_catch)]
+sl50 <- median(min(summary_catch$MeanLength):catch_mode)
+sel_params <- list(
+  sl50 = sl50,
+  sl95 = sl50 * 1.15
+)
+
+exploitation_params <- list(
+  s50 = sel_params$sl50,
+  s95 = sel_params$sl95,
+  sigmaF = 0.2
+)
+exploitation_params
+```
+## 3.3 Build extra-detail context
+Lime, being an age-structured model, needs to be told whether the provided selectivity and maturity is at length or at age. Additionally, we use this data structure to let LIME know that the steepness should be set to `h = 0.7`
+
+```{r extra_details_IME}
+extra_lht_details <- list(
+  binwidth = 1,
+  selex_input = "length",
+  maturity_input = "length",
+  nseasons = 1,
+  nfleets = 1,
+  h = 0.7
+)
+```
+
+## 3.4 Instantiate and run LIME
+Similar to LB-SPR, if LIME is  run with the flag `simul` set to TRUE, a population-dynamic simulation function is triggered, providing the following extra details for each time step:
+
+- Observed catch-at-length
+- Relative observed catch-at-length (each catch is divided by the maximum)
+- Standardised **age** structure of the underlying fished population
+- Standardised **age** structure of the underlying unfished population
+- Standardised estimated catch-at-length as a result of applying the estimated selectivity to the estimated fished population
+
+```{r run_lime}
+# Find SL50 and SL95 prior
+iim_lime_logistic <- lbmstoolbox::LimeLbms$new(
+  bio_params,
+  exploitation_params,
+  catch_data
+)
+lht_context <- iim_lime_logistic$build_lht_context(extra_lht_details)
+result_lime <- iim_lime_logistic$run(lht_context, simul = TRUE)
+```
+## 3.5 Breaking down results
+Results are provided in two flavors: i) **evaluation** where estimates of the model are held and
+ii) **simulation** where the aforementioned extra details can be found. Within this section, also the raw output yielded by
+the simulation function are provided, should you be interested in doing more with it.
+
+In addition, the estimate dataframe provides the confidence intervals of `F`, `SPR` and `R`(Recruitment) . These columns
+are prefixed by `lower` and `upper`, respectively.
+
+### 3.5.1 Estimates dataframe
+```{r lime_estimates}
+result_lime$evaluation$estimates %>%
+  head(3)
+```
+
+### 3.5.2 Simulation dataframes
+Below an example of the simulation dataframe for one single time step. The relevant columns are:
+
+- `unfished_pop`: length structure of the unfished population.
+- `fished_pop`: length structure of the fished population.
+- `expected_catch`: estimated catch yielded by the estimated fished population and selectivity.
+- `real_catch`: observed catch in absolute numbers
+- `relative_catch`: Relative-to-maximum observed catch
+
+Unlike LB-SPR the estimated catch and population structures are provided separately because the former focuses on length while the latter pertains to age.
+
+```{r lime_simulation_catch}
+result_lime$simulation$model_info$catch %>%
+  head(3)
+```
+
+```{r lime_simulation_population}
+result_lime$simulation$model_info$population %>%
+  head(3)
+```
+
+# 4. Plot examples
+
+## 4.1 Estimates plot
+A quick example on how to plot SPR and its confidence interval is shown below.
+
+```{r lbspr_estimate_plots}
+estimates <- result_lime$evaluation$estimates
+g <- estimates %>%
+  ggplot2::ggplot(ggplot2::aes(x = years, y = SPR)) +
+  ggplot2::geom_point() +
+  ggplot2::geom_line() +
+  ggplot2::geom_ribbon(ggplot2::aes(x = years, ymin = lower_spr, ymax = upper_spr, fill = "maroon2", alpha = 0.1)) +
+  ggplot2::theme_bw() +
+  ggplot2::theme(legend.position = "none")
+
+g
+```
+## 4.2 Simulation plot
+Below two different plots are displayed. The first one shows the estimated catch for the estimated fished
+length structured for year 2015. The second one plots the estimated aged-based fished and unfished populations for the same year.
+
+### 4.2.1 Estimated catch
+
+```{r lime_estimate_catch_plots}
+catch_2015 <- result_lime$simulation$model_info$catch %>%
+  dplyr::filter(year == 2015) %>%
+  dplyr::select(lengths, exp_catch)
+
+g <- catch_2015 %>%
+  ggplot2::ggplot(ggplot2::aes(x = lengths, y = exp_catch)) +
+  ggplot2::geom_point() +
+  ggplot2::geom_line() +
+  ggplot2::xlab("Lengths") +
+  ggplot2::ylab("Standardised relative catch")
+
+g
+```
+### 4.2.1 Estimated populations
+
+```{r lime_estimate_population_plots}
+population_2015 <- result_lime$simulation$model_info$population %>%
+  dplyr::filter(year == 2015) %>%
+  dplyr::select(age, unfished_pop, fished_pop) %>%
+  tidyr::pivot_longer(!age, names_to = "variables", values_to = "values")
+
+g <- population_2015 %>%
+  ggplot2::ggplot(ggplot2::aes(x = age, y = values, color = variables)) +
+  ggplot2::geom_point() +
+  ggplot2::geom_line() +
+  ggplot2::xlab("Ages") +
+  ggplot2::ylab("Standardised relative populations") +
+  ggplot2::scale_color_manual(
+    name = "Catch Type",
+    values = c(
+      unfished_pop = "seagreen",
+      fished_pop = "tomato"
+    )
+  )
+
+g
+```
+# 5. References
+
+1. Rudd, M.B., Thorson, J.T., 2017. Accounting for Variability and Biases in Data-limited Fisheries Stock Assessment. Canadian Journal of Fisheries and Aquatic Sciences 75, 1019–1035. https://doi.org/10.1139/cjfas-2017-0143
+2 . Thorson, J.T., Jensen, O.P., Zipkin, E.F., 2014. How variable is recruitment for exploited marine fishes? A hierarchical model for testing life history theory. Can. J. Fish. Aquat. Sci. 71, 973–983. https://doi.org/10.1139/cjfas-2013-0645
+3. Prince, J., Harford, W.J., Taylor, B.M., Lindfield, S.J., 2022. Standard histological techniques systematically under‐estimate the size fish start spawning. Fish and Fisheries 23, 1507–1516. https://doi.org/10.1111/faf.12702

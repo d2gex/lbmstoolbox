@@ -18,7 +18,7 @@ For this vigenette to work this package must be installed and exist in whatever 
 can install it widely on the system by using `devtools::install_github(..)` or locally by `renv::install`. if ran interactively,
 ensure that the working directory is set to the `vignettes` folder - use `setwd` as suits you best.
 
-# 2. Read sampling data
+# 2. Read sampling and biological data
 A data sample has been provided to showcase how both algorithm interfaces work. The first element of the list is the catch's
 length composition that the model will assess. This structure, in turn, stores two dataframes: i) a **long** one where years and
 lengths are laid as rows and ii) a **wide** one where years are set as columns and lengths as rows. Both dataframes contain `MeanLength`,
@@ -49,7 +49,10 @@ spp_sampling_details$bio_params
 ## 3.1 Build biological parameters required by LB-SPR
 Please visit [LBSPR documentation](https://adrianhordyk.github.io/LBSPR/articles/LBSPR.html) for further details. `fecb`
 defines the relationship between size and fecundity. By default, LB-SPR sets it to 3. We use the provided `b` exponent
-obtaiend from the weight-length relationship.
+obtained from the weight-length relationship.
+
+The biological parameters here provided contains the union of those required by LB-SPR and LIME. Let's strip off LIME's
+specific parameters and build LBSPR'S missing ones.
 
 ```{r biological_parameters_lbspr}
 bio_params <- spp_sampling_details$bio_params
@@ -83,12 +86,11 @@ iim_lbspr <- lbmstoolbox::LbsprLbms$new(
 result_lbspr <- iim_lbspr$run(simul = TRUE)
 ```
 ## 3.3 Breaking down results
-The results are broke down into two main categories: i) **evaluation** where estimates of the model can be found and
-ii) **simulation** where the aforementioned extra details can be found. Within this section, the raw details yielded by
-the simulation function can be found, should you be interested in doing more with it.
+Results are provided in two flavors: i) **evaluation** where estimates of the model are held and
+ii) **simulation** where the aforementioned extra details can be found. Within this section, also the raw output yielded by
+the simulation function are provided, should you be interested in doing more with it.
 
-In addition, the estimate dataframe provide the confidence intervals of `FM` and `SPR`. These columns are prefix by
-`lower` and `upper`, respectively.
+In addition, the estimate dataframe provides the confidence intervals of `FM` and `SPR`. These columns are prefixed by `lower` and `upper`, respectively.
 
 ### 3.3.1 Estimates dataframe
 ```{r lbspr_estimates}
@@ -159,12 +161,12 @@ g
 ### 4.2.1 Estimated populations
 
 ```{r lbspr_estimate_population_plots}
-catch_2015 <- result_lbspr$simulation$model_info %>%
+population_2015 <- result_lbspr$simulation$model_info %>%
   dplyr::filter(year == 2015) %>%
   dplyr::select(lengths, unfished_pop, fished_pop) %>%
   tidyr::pivot_longer(!lengths, names_to = "variables", values_to = "values")
 
-g <- catch_2015 %>%
+g <- population_2015 %>%
   ggplot2::ggplot(ggplot2::aes(x = lengths, y = values, color = variables)) +
   ggplot2::geom_point() +
   ggplot2::geom_line() +
