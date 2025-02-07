@@ -2,9 +2,9 @@
 title: "LIME tutorial"
 output: rmarkdown::html_vignette
 vignette: >
-%\VignetteIndexEntry{lbspr_use_case}
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteEncoding{UTF-8}
+    %\VignetteIndexEntry{LIME tutorial}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
@@ -13,8 +13,11 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+```{r, setup}
+library(magrittr) # required for this vignette to work
+```
 # 1. Installing `lbmstoolbox` package
-For this vigenette to work this package must be installed and exist in whatever R's libpath of yours. To do so you
+For this vigenette to work the `lbmstoolbox` package must be installed and exist in whatever R's libpath of yours. To do so you
 can install it widely on the system by using `devtools::install_github(..)` or locally by `renv::install`. if ran interactively,
 ensure that the working directory is set to the `vignettes` folder - use `setwd` as suits you best.
 

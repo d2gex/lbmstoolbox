@@ -90,7 +90,7 @@ LbsprSimulation <- R6::R6Class("LbsprSimulation", public = list( # nolint
         df <- df %>% dplyr::mutate(
           relative_catch = real_catch / sum(real_catch)
         )
-      }), bind_rows)
+      }), dplyr::bind_rows)
     )
   }
 ))

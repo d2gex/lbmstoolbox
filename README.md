@@ -8,13 +8,14 @@ usability and functionality, including:
 1. **Streamlined Interface**: Both models now share a consistent interface, simplifying their use and integration.
 2. **Full LB-SPR Features**: In addition to generating standard estimates, LB-SPR now re-runs its internal simulation 
 function to provide detailed outputs on the estimated fished and unfished catch length composition, as well as the corresponding 
-population length structure. These features were already provided by the model however the wrapper expose them as natural outputs.
-3. **Modified LIME Features**: fished and unfished catch length composition as well as the fished and unfished estimated population length structure
-4. The version of [LIME](https://github.com/d2gex/LIME) used here has been forked and its TMB template modified to provide the unfished population
+population length structure. These features were already available in the model however the wrapper exposes them as natural outputs.
+3. **Modified LIME Features**: The version of [LIME](https://github.com/d2gex/LIME) used here has been forked and its TMB template modified to provide the unfished population
 length structure.
-5. Likewise, this wrapper on LIME provides estimated fished catch length composition but not the unfished one. Furthermore,
-both fished and unfished population length structures are now output in the age domain, reflecting LIME's fully age-structured 
-modeling approach. Again, such features were already provided by LIME though this wrapper exposes them as regular outputs.
+5. Likewise, this wrapper on LIME provides the estimated fished catch length composition but not the unfished one. Furthermore,
+both fished and unfished population length structures are now outputs in the age domain, reflecting LIME's fully age-structured 
+modeling approach. While these features were already inherent to LIME, this wrapper makes them more accessible as standard outputs.
+6. **Enhancing robustness of results**: Confidence intervals are now included with key evaluation metrics such as `SPR` and `FM` for LB-SPR and `SPR`, `F` 
+and `R` for LIME.
 
 ## Caveats
 

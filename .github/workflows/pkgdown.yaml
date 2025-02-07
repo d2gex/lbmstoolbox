@@ -31,10 +31,14 @@ jobs:
         with:
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::pkgdown, local::.
-          needs: website
+      - uses: r-lib/actions/setup-renv@v2
+        env:
+          RENV_CONFIG_PAK_ENABLED: false
+
+      - name: Install local package
+        shell: Rscript {0}
+        run: |
+           renv::install("d2gex/lbmstoolbox")
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
