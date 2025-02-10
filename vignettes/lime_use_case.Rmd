@@ -13,6 +13,8 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+**Update**: Some cells of this vignette have been prevented from running as there is a problem with LIME and its
+`Matrix` package dependency. A fix is coming soon. More details on [Readme](https://d2gex.github.io/lbmstoolbox/).
 ```{r, setup}
 library(magrittr) # required for this vignette to work
 ```
@@ -87,7 +89,7 @@ Similar to LB-SPR, if LIME is  run with the flag `simul` set to TRUE, a populati
 - Standardised **age** structure of the underlying unfished population
 - Standardised estimated catch-at-length as a result of applying the estimated selectivity to the estimated fished population
 
-```{r run_lime}
+```{r run_lime, eval = FALSE}
 # Find SL50 and SL95 prior
 iim_lime_logistic <- lbmstoolbox::LimeLbms$new(
   bio_params,
@@ -106,7 +108,7 @@ In addition, the estimate dataframe provides the confidence intervals of `F`, `S
 are prefixed by `lower` and `upper`, respectively.
 
 ### 3.5.1 Estimates dataframe
-```{r lime_estimates}
+```{r lime_estimates, eval = FALSE}
 result_lime$evaluation$estimates %>%
   head(3)
 ```
@@ -122,12 +124,12 @@ Below an example of the simulation dataframe for one single time step. The relev
 
 Unlike LB-SPR the estimated catch and population structures are provided separately because the former focuses on length while the latter pertains to age.
 
-```{r lime_simulation_catch}
+```{r lime_simulation_catch, eval = FALSE}
 result_lime$simulation$model_info$catch %>%
   head(3)
 ```
 
-```{r lime_simulation_population}
+```{r lime_simulation_population, eval = FALSE}
 result_lime$simulation$model_info$population %>%
   head(3)
 ```
@@ -137,7 +139,7 @@ result_lime$simulation$model_info$population %>%
 ## 4.1 Estimates plot
 A quick example on how to plot SPR and its confidence interval is shown below.
 
-```{r lbspr_estimate_plots}
+```{r lbspr_estimate_plots, eval = FALSE}
 estimates <- result_lime$evaluation$estimates
 g <- estimates %>%
   ggplot2::ggplot(ggplot2::aes(x = years, y = SPR)) +
@@ -155,7 +157,7 @@ length structured for year 2015. The second one plots the estimated aged-based f
 
 ### 4.2.1 Estimated catch
 
-```{r lime_estimate_catch_plots}
+```{r lime_estimate_catch_plots, eval = FALSE}
 catch_2015 <- result_lime$simulation$model_info$catch %>%
   dplyr::filter(year == 2015) %>%
   dplyr::select(lengths, exp_catch)
@@ -171,7 +173,7 @@ g
 ```
 ### 4.2.1 Estimated populations
 
-```{r lime_estimate_population_plots}
+```{r lime_estimate_population_plots, eval = FALSE}
 population_2015 <- result_lime$simulation$model_info$population %>%
   dplyr::filter(year == 2015) %>%
   dplyr::select(age, unfished_pop, fished_pop) %>%

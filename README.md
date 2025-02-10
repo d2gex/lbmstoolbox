@@ -1,3 +1,9 @@
+**Note**: There is currently a problem with LIME and its `Matrix` package dependency. Later updates on
+`Matrix` did remove functions that other R packages depends on, hence provoking a *function 'sexp_as_cholmod_sparse' 
+not provided by package 'Matrix'* error. A similar error for matrix-client libraries was reported [here](https://github.com/stuart-lab/signac/issues/1596).
+For now, some cells within the LIME's vignette have been prevented from running to avoid breaking the rendering with
+an unrecoverable error. This issue will be fixed in the coming weeks.
+
 # lbmstoolbox
 
 This toolbox integrates and provides a unified wrapper for two widely-used length-based fisheries evaluation methods: 

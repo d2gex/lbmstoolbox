@@ -3,6 +3,7 @@ analysed
 Aquat
 assertr
 aut
+cholmod
 cloneable
 contrib
 cre
@@ -49,10 +50,12 @@ ogive
 parammeters
 pkgdown
 purrr
+Readme
 rmarkdown
 RoxygenNote
 Rudd
 Sainsbury
+sexp
 SL
 SPR
 Standardised
