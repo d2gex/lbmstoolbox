@@ -121,7 +121,7 @@ result_lbspr$simulation$model_info %>%
 ## 4.1 Estimates plot
 A quick example on how to plot SPR and its confidence interval is shown below.
 
-```{r lbspr_estimate_plots}
+```{r lbspr_estimate_plots, fig.width=8}
 estimates <- result_lbspr$evaluation$estimates
 g <- estimates %>%
   ggplot2::ggplot(ggplot2::aes(x = years, y = SPR)) +
@@ -133,13 +133,14 @@ g <- estimates %>%
 
 g
 ```
+
 ## 4.2 Simulation plot
 Below two different plots are displayed. The first one shows the estimated catch from both the estimated fished and unfished
 length structured for year 2015. The second one plots the estimated fished and unfished populations for the same year.
 
 ### 4.2.1 Estimated catch
 
-```{r lbspr_estimate_catch_plots}
+```{r lbspr_estimate_catch_plots, fig.width=8}
 catch_2015 <- result_lbspr$simulation$model_info %>%
   dplyr::filter(year == 2015) %>%
   dplyr::select(lengths, unfished_vul, exp_catch) %>%
@@ -161,9 +162,10 @@ g <- catch_2015 %>%
 
 g
 ```
+
 ### 4.2.1 Estimated populations
 
-```{r lbspr_estimate_population_plots}
+```{r lbspr_estimate_population_plots, fig.width=8}
 population_2015 <- result_lbspr$simulation$model_info %>%
   dplyr::filter(year == 2015) %>%
   dplyr::select(lengths, unfished_pop, fished_pop) %>%
