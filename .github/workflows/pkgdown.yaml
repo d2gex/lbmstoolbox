@@ -35,10 +35,12 @@ jobs:
         env:
           RENV_CONFIG_PAK_ENABLED: false
 
+      # sketchy, I know! pak::pkg_install("d2gex/LIME) breaks therefore setup-r@c2 does not work. A proper fix
+      # is required so this section will disappear shortly.
       - name: Install local package
         shell: Rscript {0}
         run: |
-           renv::install("d2gex/lbmstoolbox")
+           renv::install("d2gex/lbmstoolbox") 
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
