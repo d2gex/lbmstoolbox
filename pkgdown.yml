@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   lbspr_use_case: lbspr_use_case.html
   lime_use_case: lime_use_case.html
-last_built: 2025-02-10T17:34Z
+last_built: 2025-02-10T17:36Z
 urls:
   reference: https://d2gex.github.io/lbmstoolbox/reference
   article: https://d2gex.github.io/lbmstoolbox/articles
