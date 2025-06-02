@@ -141,6 +141,7 @@ LimeLbms <- R6::R6Class("LimeLbms", inherit = Lbms, public = list( # nolint
         result$Inputs$Data$lbhighs,
         result$Inputs$Data$match_ages,
         result$Report$plb,
+        result$Report$plb0,
         result$Report$N_ta,
         result$Report$N_ta0
       )

@@ -11,11 +11,12 @@ LimeSimulation <- R6::R6Class("LimeSimulation", public = list( # nolint
   mid_points = NULL,
   #' @field ages integer vector
   ages = NULL,
-  #' @field estimated_catch estimated catch three-dimensional matrix
-  estimated_catch = NULL, # plb
+  #' @field fished_vul estimated fished catch three-dimensional matrix
+  fished_vul = NULL, # plb
+  #' @field unfished_vul estimated unfished catch three-dimensional matrix
+  unfished_vul = NULL, # plb0
   #' @field fished_population estimated fished population matrix
   fished_population = NULL, # N_ta
-  #' @field fished_population estimated fished population matrix
   #' @field unfished_population estimated unfished population matrix
   unfished_population = NULL, # Nta0
   #' @description
@@ -23,16 +24,17 @@ LimeSimulation <- R6::R6Class("LimeSimulation", public = list( # nolint
   #'
   #' @param catch_data list of long and wide dataframes
   #' @param mid_points vector of modelled lengths by LIME
-  #' @param estimated_catch estimated catch three-dimensional matrix
+  #' @param fished_vul estimated catch three-dimensional matrix
   #' @param fished_population estimated fished population matrix
   #' @param fished_population estimated fished population matrix
   #' @export
   # @formatter:on
-  initialize = function(catch_data, mid_points, ages, estimated_catch, fished_population, unfished_population) {
+  initialize = function(catch_data, mid_points, ages, fished_vul, unfished_vul, fished_population, unfished_population) {
     self$catch_data <- catch_data
     self$mid_points <- mid_points
     self$ages <- ages
-    self$estimated_catch <- estimated_catch
+    self$fished_vul <- fished_vul
+    self$unfished_vul <- unfished_vul
     self$fished_population <- fished_population
     self$unfished_population <- unfished_population
   },
@@ -60,10 +62,12 @@ LimeSimulation <- R6::R6Class("LimeSimulation", public = list( # nolint
   # @formatter:on
   build_catch_df = function() {
     real_catch <- private$build_catch_dataframe()
-    exp_catch <- private$build_expected_catch_dataframe()
-    exp_catch %>% assertr::verify(nrow(.) == nrow(real_catch))
+    fished_vul <- private$build_expected_catch_dataframe(self$fished_vul, "exp_catch")
+    fished_vul %>% assertr::verify(nrow(.) == nrow(real_catch))
+    unfished_vul <- private$build_expected_catch_dataframe(self$unfished_vul, "unfished_vul")
+    unfished_vul %>% assertr::verify(nrow(.) == nrow(real_catch))
     return(
-      purrr::reduce(list(real_catch, exp_catch), dplyr::full_join, by = c("year", "lengths"))
+      purrr::reduce(list(real_catch, fished_vul, unfished_vul), dplyr::full_join, by = c("year", "lengths"))
     )
   },
   # @formatter:off
@@ -106,9 +110,9 @@ LimeSimulation <- R6::R6Class("LimeSimulation", public = list( # nolint
       dplyr::rename(c("lengths" = "MeanLength"))
     return(catch_df)
   },
-  build_expected_catch_dataframe = function() {
+  build_expected_catch_dataframe = function(estimated_catch, colname) {
     # (1) Reconstruct wide dataframe with year and midpoints
-    exp_catch_df <- as.data.frame(self$estimated_catch)
+    exp_catch_df <- as.data.frame(estimated_catch)
     mid_points <- self$mid_points[seq_along(exp_catch_df)]
     names(exp_catch_df) <- mid_points
     exp_catch_df$year <- unique(self$catch_data$long$year)
@@ -119,11 +123,11 @@ LimeSimulation <- R6::R6Class("LimeSimulation", public = list( # nolint
     max_mid_point <- max(real_mid_points)
 
     exp_catch_df <- exp_catch_df %>%
-      tidyr::pivot_longer(!year, names_to = "lengths", values_to = "exp_catch") %>%
+      tidyr::pivot_longer(!year, names_to = "lengths", values_to = colname) %>%
       dplyr::mutate(lengths = as.numeric(lengths)) %>%
       dplyr::filter((lengths >= min_mid_point) & (lengths <= max_mid_point)) %>% # crop
       dplyr::group_by(year) %>%
-      dplyr::mutate(exp_catch = exp_catch / sum(exp_catch)) %>% # make it relative
+      dplyr::mutate(!!colname := get(colname) / sum(get(colname))) %>% # make it relative
       dplyr::ungroup()
 
     return(exp_catch_df)
