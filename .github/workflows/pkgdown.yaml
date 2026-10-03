@@ -27,8 +27,12 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v2
 
+      # NOTE (2026): R 4.2.2 is pinned because renv.lock contains mgcv 1.8-41,
+      # which fails to compile under R 4.6. Upgrade the lockfile and validate
+      # LIME/Matrix compatibility before updating this version.
       - uses: r-lib/actions/setup-r@v2
         with:
+          r-version: '4.2.2'
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-renv@v2
