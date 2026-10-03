@@ -67,34 +67,30 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span> <span class="co"># required for this vignette to work</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="installing-lbmstoolbox-package">1. Installing <code>lbmstoolbox</code> package<a class="anchor" aria-label="anchor" href="#installing-lbmstoolbox-package"></a>
+<h2 id="install-lbmstoolbox">1. Install <code>lbmstoolbox</code><a class="anchor" aria-label="anchor" href="#install-lbmstoolbox"></a>
 </h2>
-<p>For this vigenette to work the <code>lbmstoolbox</code> package must
-be installed and exist in whatever R’s libpath of yours. To do so you
-can install it widely on the system by using
-<code>devtools::install_github(..)</code> or locally by
-<code><a href="https://rstudio.github.io/renv/reference/install.html" class="external-link">renv::install</a></code>. if ran interactively, ensure that the
-working directory is set to the <code>vignettes</code> folder - use
-<code>setwd</code> as suits you best.</p>
+<p>To run this vignette, install <code>lbmstoolbox</code> in one of R’s
+library paths. Install it system-wide with
+<code>devtools::install_github()</code> or locally with
+<code><a href="https://rstudio.github.io/renv/reference/install.html" class="external-link">renv::install()</a></code>. When running the source interactively, use
+the <code>vignettes</code> directory as the working directory so that
+the bundled data file can be found.</p>
 </div>
 <div class="section level2">
 <h2 id="read-sampling-and-biological-data">2. Read sampling and biological data<a class="anchor" aria-label="anchor" href="#read-sampling-and-biological-data"></a>
 </h2>
-<p>A data sample has been provided to showcase how both algorithm
-interfaces work. The first element of the list is the catch’s length
-composition that the model will assess. This structure, in turn, stores
-two dataframes: i) a <strong>long</strong> one where years and lengths
-are laid as rows and ii) a <strong>wide</strong> one where years are set
-as columns and lengths as rows. Both dataframes contain
-<code>MeanLength</code>, the name of the column holding the length
-classes.</p>
-<p>The second element is a list with the biological parameters of the
-species being evaluated, which we will call
-<code>spp.demersal</code>.</p>
+<p>The bundled example contains catch and biological data. Its first
+element, <code>catch_data</code>, holds the catch length composition in
+two forms: a <strong>long</strong> data frame with year–length
+observations in rows, and a <strong>wide</strong> data frame with length
+classes in rows and years in columns. Both use <code>MeanLength</code>
+for the length-class column.</p>
+<p>The second element contains the biological parameters for the
+evaluated species.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">spp_sampling_details</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"data/spp_test_data.rds"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="showcase-long-dataframe">2.1 Showcase long dataframe<a class="anchor" aria-label="anchor" href="#showcase-long-dataframe"></a>
+<h3 id="long-data-frame">2.1 Long data frame<a class="anchor" aria-label="anchor" href="#long-data-frame"></a>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">catch_data</span> <span class="op">&lt;-</span> <span class="va">spp_sampling_details</span><span class="op">$</span><span class="va">catch_data</span></span>
@@ -109,7 +105,7 @@ species being evaluated, which we will call
 <span><span class="co">#&gt; 6 2013    (8,9]        8.5     0</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="showcase-wide-dataframe">2.2 Showcase wide dataframe<a class="anchor" aria-label="anchor" href="#showcase-wide-dataframe"></a>
+<h3 id="wide-data-frame">2.2 Wide data frame<a class="anchor" aria-label="anchor" href="#wide-data-frame"></a>
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">catch_data</span><span class="op">$</span><span class="va">wide</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -123,7 +119,7 @@ species being evaluated, which we will call
 <span><span class="co">#&gt; 6        8.5    0    0    0    0    0    0    0    0</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="showcase-wide-dataframe-1">2.3 Showcase wide dataframe<a class="anchor" aria-label="anchor" href="#showcase-wide-dataframe-1"></a>
+<h3 id="biological-parameters">2.3 Biological parameters<a class="anchor" aria-label="anchor" href="#biological-parameters"></a>
 </h3>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">spp_sampling_details</span><span class="op">$</span><span class="va">bio_params</span></span>
@@ -171,21 +167,21 @@ species being evaluated, which we will call
 <h2 id="run-lb-spr">3. Run LB-SPR<a class="anchor" aria-label="anchor" href="#run-lb-spr"></a>
 </h2>
 <div class="section level3">
-<h3 id="build-biological-parameters-required-by-lb-spr">3.1 Build biological parameters required by LB-SPR<a class="anchor" aria-label="anchor" href="#build-biological-parameters-required-by-lb-spr"></a>
+<h3 id="build-biological-parameters-for-lb-spr">3.1 Build biological parameters for LB-SPR<a class="anchor" aria-label="anchor" href="#build-biological-parameters-for-lb-spr"></a>
 </h3>
-<p>Please visit <a href="https://adrianhordyk.github.io/LBSPR/articles/LBSPR.html" class="external-link">LBSPR
-documentation</a> for further details. <code>fecb</code> defines the
-relationship between size and fecundity. By default, LB-SPR sets it to
-3. We use the provided <code>b</code> exponent obtained from the
-weight-length relationship.</p>
-<p>The biological parameters here provided contains the union of those
-required by LB-SPR and LIME. Let’s strip off LIME’s specific parameters
-and build LBSPR’S missing ones.</p>
+<p>See the <a href="https://adrianhordyk.github.io/LBSPR/articles/LBSPR.html" class="external-link">LBSPR
+documentation</a> for parameter definitions. <code>fecb</code> is the
+exponent in the size–fecundity relationship. LB-SPR defaults to
+<code>3</code>; here, it is set to the supplied exponent from the
+weight–length relationship.</p>
+<p>The example biological-parameter list contains fields for both LB-SPR
+and LIME. Remove the LIME-specific fields and derive LB-SPR’s
+<code>mk</code> parameter.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bio_params</span> <span class="op">&lt;-</span> <span class="va">spp_sampling_details</span><span class="op">$</span><span class="va">bio_params</span></span>
 <span></span>
 <span><span class="co"># We need to provide MK</span></span>
-<span><span class="va">bio_params</span><span class="op">$</span><span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">bio_params</span><span class="op">$</span><span class="va">M</span> <span class="op">/</span> <span class="va">bio_params</span><span class="op">$</span><span class="va">M</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">bio_params</span><span class="op">$</span><span class="va">mk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">bio_params</span><span class="op">$</span><span class="va">M</span> <span class="op">/</span> <span class="va">bio_params</span><span class="op">$</span><span class="va">k</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co"># ... And get rid of those that not required</span></span>
 <span><span class="va">bio_params</span><span class="op">$</span><span class="va">M</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
 <span><span class="va">bio_params</span><span class="op">$</span><span class="va">t0</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
@@ -218,26 +214,22 @@ and build LBSPR’S missing ones.</p>
 <span><span class="co">#&gt; [1] 22.37</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $mk</span></span>
-<span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 1.69</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="run-lb-spr-1">3.2 Run LB-SPR<a class="anchor" aria-label="anchor" href="#run-lb-spr-1"></a>
 </h3>
-<p>If LB-SPR is run with the flag <code>simul</code> set to TRUE,
-re-runs the simulation function to provide extra details for each time
-step used as follows:</p>
+<p>With <code>simul = TRUE</code>, the wrapper runs LB-SPR’s simulator
+for each time step and returns:</p>
 <ul>
 <li>Observed catch-at-length</li>
-<li>Relative observed catch-at-length (each catch is divided by the
-maximum)</li>
-<li>Standardised length structure of the underlying fished
-population</li>
-<li>Standardised length structure of the underlying unfished
-population</li>
-<li>Standardised estimated catch as a result of applying the estimated
-selectivity to the estimated fished population</li>
-<li>Standardised estimated catch as a result of applying the estimated
-selectivity to the estimated unfished population</li>
+<li>Observed catch-at-length, scaled to sum to one</li>
+<li>Standardised fished and unfished population-at-length
+structures</li>
+<li>Standardised estimated catch after applying estimated selectivity to
+the fished population</li>
+<li>Standardised estimated catch after applying estimated selectivity to
+the unfished population</li>
 </ul>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iim_lbspr</span> <span class="op">&lt;-</span> <span class="fu">lbmstoolbox</span><span class="fu">::</span><span class="va"><a href="../reference/LbsprLbms.html">LbsprLbms</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -270,15 +262,13 @@ selectivity to the estimated unfished population</li>
 <div class="section level3">
 <h3 id="breaking-down-results">3.3 Breaking down results<a class="anchor" aria-label="anchor" href="#breaking-down-results"></a>
 </h3>
-<p>Results are provided in two flavors: i) <strong>evaluation</strong>
-where estimates of the model are held and ii)
-<strong>simulation</strong> where the aforementioned extra details can
-be found. Within this section, also the raw output yielded by the
-simulation function are provided, should you be interested in doing more
-with it.</p>
-<p>In addition, the estimate dataframe provides the confidence intervals
-of <code>FM</code> and <code>SPR</code>. These columns are prefixed by
-<code>lower</code> and <code>upper</code>, respectively.</p>
+<p>Results have two components: <strong>evaluation</strong>, which
+contains model estimates, and <strong>simulation</strong>, which
+contains the additional simulation output. The latter also retains the
+raw LB-SPR simulation output.</p>
+<p>The estimates data frame also includes confidence intervals for
+<code>FM</code> and <code>SPR</code>, with <code>lower_</code> and
+<code>upper_</code> prefixes.</p>
 <div class="section level4">
 <h4 id="estimates-dataframe">3.3.1 Estimates dataframe<a class="anchor" aria-label="anchor" href="#estimates-dataframe"></a>
 </h4>
@@ -286,42 +276,41 @@ of <code>FM</code> and <code>SPR</code>. These columns are prefixed by
 <code class="sourceCode R"><span><span class="va">result_lbspr</span><span class="op">$</span><span class="va">evaluation</span><span class="op">$</span><span class="va">estimates</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    SL50  SL95   FM  SPR years lower_spr upper_spr lower_fm upper_fm</span></span>
-<span><span class="co">#&gt; 1 17.37 20.44 2.68 0.12  2013 0.1086088 0.1313912 2.506141 2.853859</span></span>
-<span><span class="co">#&gt; 2 17.38 20.48 2.72 0.12  2014 0.1030489 0.1369511 2.394831 3.045169</span></span>
-<span><span class="co">#&gt; 3 17.37 20.41 2.75 0.12  2015 0.1068953 0.1331047 2.426899 3.073101</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 17.43 20.45 1.20 0.27  2013 0.2444028 0.2955972 1.096203 1.303797</span></span>
+<span><span class="co">#&gt; 2 17.44 20.49 1.22 0.26  2014 0.2222500 0.2977500 1.026131 1.413869</span></span>
+<span><span class="co">#&gt; 3 17.43 20.43 1.24 0.26  2015 0.2311834 0.2888166 1.047280 1.432720</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="simulation-dataframes">3.3.2 Simulation dataframes<a class="anchor" aria-label="anchor" href="#simulation-dataframes"></a>
 </h4>
-<p>Below an example of the simulation dataframe for one single time
-step. The relevant columns are:</p>
+<p>The simulation data frame includes the following columns for each
+time step:</p>
 <ul>
 <li>
 <code>unfished_pop</code>: length structure of the unfished
-population.</li>
+population</li>
 <li>
 <code>fished_pop</code>: length structure of the fished
-population.</li>
+population</li>
 <li>
-<code>unfished_vul</code>: estimated catch yielded by the estimated
-unfished population and selectivity.</li>
+<code>unfished_vul</code>: estimated catch from the unfished
+population after applying selectivity</li>
 <li>
-<code>expected_catch</code>: estimated catch yielded by the
-estimated fished population and selectivity.</li>
+<code>exp_catch</code>: estimated catch from the fished population
+after applying selectivity</li>
 <li>
 <code>real_catch</code>: observed catch in absolute numbers</li>
 <li>
-<code>relative_catch</code>: Relative-to-maximum observed catch</li>
-<li>
-</li>
+<code>relative_catch</code>: observed catch scaled to sum to
+one</li>
 </ul>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result_lbspr</span><span class="op">$</span><span class="va">simulation</span><span class="op">$</span><span class="va">model_info</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   year lengths unfished_pop fished_pop unfished_vul    exp_catch real_catch</span></span>
-<span><span class="co">#&gt; 1 2013     3.5   0.02593895 0.04597458            0 2.231862e-07          0</span></span>
-<span><span class="co">#&gt; 2 2013     4.5   0.02593895 0.04597458            0 5.823691e-07          0</span></span>
-<span><span class="co">#&gt; 3 2013     5.5   0.02593895 0.04597458            0 1.519593e-06          0</span></span>
+<span><span class="co">#&gt; 1 2013     3.5   0.04295017 0.05594507 0.000000e+00 2.357449e-07          0</span></span>
+<span><span class="co">#&gt; 2 2013     4.5   0.04217148 0.05492970 0.000000e+00 6.136485e-07          0</span></span>
+<span><span class="co">#&gt; 3 2013     5.5   0.04138486 0.05390612 1.000001e-06 1.596534e-06          0</span></span>
 <span><span class="co">#&gt;   relative_catch</span></span>
 <span><span class="co">#&gt; 1              0</span></span>
 <span><span class="co">#&gt; 2              0</span></span>
@@ -353,10 +342,9 @@ shown below.</p>
 <div class="section level3">
 <h3 id="simulation-plot">4.2 Simulation plot<a class="anchor" aria-label="anchor" href="#simulation-plot"></a>
 </h3>
-<p>Below two different plots are displayed. The first one shows the
-estimated catch from both the estimated fished and unfished length
-structured for year 2015. The second one plots the estimated fished and
-unfished populations for the same year.</p>
+<p>The first plot compares estimated catch from the fished and unfished
+populations in 2015. The second compares the corresponding
+population-at-length structures.</p>
 <div class="section level4">
 <h4 id="estimated-catch">4.2.1 Estimated catch<a class="anchor" aria-label="anchor" href="#estimated-catch"></a>
 </h4>
@@ -384,7 +372,7 @@ unfished populations for the same year.</p>
 <p><img src="lbspr_use_case_files/figure-html/lbspr_estimate_catch_plots-1.png" width="768"></p>
 </div>
 <div class="section level4">
-<h4 id="estimated-populations">4.2.1 Estimated populations<a class="anchor" aria-label="anchor" href="#estimated-populations"></a>
+<h4 id="estimated-populations">4.2.2 Estimated populations<a class="anchor" aria-label="anchor" href="#estimated-populations"></a>
 </h4>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">population_2015</span> <span class="op">&lt;-</span> <span class="va">result_lbspr</span><span class="op">$</span><span class="va">simulation</span><span class="op">$</span><span class="va">model_info</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>

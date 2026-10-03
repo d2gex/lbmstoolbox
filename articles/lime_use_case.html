@@ -64,29 +64,27 @@
 
     
     
-<p><strong>Update</strong>: Some cells of this vignette have been
-prevented from running as there is a problem with LIME and its
-<code>Matrix</code> package dependency. A fix is coming soon. More
-details on <a href="https://d2gex.github.io/lbmstoolbox/">Readme</a>.</p>
+<p><strong>Note:</strong> The model-fitting chunks in this vignette are
+disabled because of a <code>Matrix</code> compatibility issue. See the
+<a href="https://d2gex.github.io/lbmstoolbox/">README</a> for
+details.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span> <span class="co"># required for this vignette to work</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="installing-lbmstoolbox-package">1. Installing <code>lbmstoolbox</code> package<a class="anchor" aria-label="anchor" href="#installing-lbmstoolbox-package"></a>
+<h2 id="install-lbmstoolbox">1. Install <code>lbmstoolbox</code><a class="anchor" aria-label="anchor" href="#install-lbmstoolbox"></a>
 </h2>
-<p>For this vigenette to work the <code>lbmstoolbox</code> package must
-be installed and exist in whatever R’s libpath of yours. To do so you
-can install it widely on the system by using
-<code>devtools::install_github(..)</code> or locally by
-<code><a href="https://rstudio.github.io/renv/reference/install.html" class="external-link">renv::install</a></code>. if ran interactively, ensure that the
-working directory is set to the <code>vignettes</code> folder - use
-<code>setwd</code> as suits you best.</p>
+<p>To run this vignette, install <code>lbmstoolbox</code> in one of R’s
+library paths. Install it system-wide with
+<code>devtools::install_github()</code> or locally with
+<code><a href="https://rstudio.github.io/renv/reference/install.html" class="external-link">renv::install()</a></code>. When running the source interactively, use
+the <code>vignettes</code> directory as the working directory so that
+the bundled data file can be found.</p>
 </div>
 <div class="section level2">
 <h2 id="read-sampling-and-biological-data">2. Read sampling and biological data<a class="anchor" aria-label="anchor" href="#read-sampling-and-biological-data"></a>
 </h2>
-<p>Please see <a href="../articles/lbspr_use_case.html">station_and_receptors</a> for
-further details about what to the model expects from the required input
-parameters.</p>
+<p>See the <a href="../articles/lbspr_use_case.html">LB-SPR tutorial</a>
+for details of the required input data.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">spp_sampling_details</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"data/spp_test_data.rds"</span><span class="op">)</span></span>
 <span><span class="va">catch_data</span> <span class="op">&lt;-</span> <span class="va">spp_sampling_details</span><span class="op">$</span><span class="va">catch_data</span></span></code></pre></div>
@@ -95,19 +93,17 @@ parameters.</p>
 <h2 id="run-lime-model">3. Run LIME model<a class="anchor" aria-label="anchor" href="#run-lime-model"></a>
 </h2>
 <div class="section level3">
-<h3 id="build-biological-parameters-required-by-lime">3.1 Build biological parameters required by LIME<a class="anchor" aria-label="anchor" href="#build-biological-parameters-required-by-lime"></a>
+<h3 id="build-biological-parameters-for-lime">3.1 Build biological parameters for LIME<a class="anchor" aria-label="anchor" href="#build-biological-parameters-for-lime"></a>
 </h3>
-<p>Please visit <a href="https://github.com/merrillrudd/LIME/blob/master/vignettes/LIME.pdf" class="external-link">LIME
-documentation</a> for further details.</p>
-<p>The biological parameters here provided contains the union of those
-required by LB-SPR and LIME. Let’s strip off LBSPR’s specific
-parameters. In addition, it is important to pay attention to two special
-parameters: i) <code>rec_variability_mean</code> and
-<code>rec_variability_sd</code> are the mean and standard deviation of
-control distribution applied to the estimates of recruitment, to avoid
-this parameter to shoot out unrealistically (Rudd and Thorson, 2017).
-The values of such variables were obtained from Thorson et al.,
-2014.</p>
+<p>See the <a href="https://github.com/merrillrudd/LIME/blob/master/vignettes/LIME.pdf" class="external-link">LIME
+documentation</a> for parameter definitions.</p>
+<p>The example biological-parameter list contains fields for both LB-SPR
+and LIME. Remove the LB-SPR-specific field.
+<code>rec_variability_mean</code> and <code>rec_variability_sd</code>
+define the mean and standard deviation of LIME’s recruitment-variability
+prior (<code>SigRprior</code>), preventing unrealistically variable
+recruitment estimates (Rudd and Thorson, 2017). The example values are
+based on Thorson et al. (2014).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bio_params</span> <span class="op">&lt;-</span> <span class="va">spp_sampling_details</span><span class="op">$</span><span class="va">bio_params</span></span>
 <span><span class="va">bio_params</span><span class="op">$</span><span class="va">fecb</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
@@ -149,17 +145,15 @@ The values of such variables were obtained from Thorson et al.,
 <span><span class="co">#&gt; [1] 22.37</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="build-exploitation-parameters-required-by-lime">3.2 Build exploitation parameters required by LIME<a class="anchor" aria-label="anchor" href="#build-exploitation-parameters-required-by-lime"></a>
+<h3 id="build-exploitation-parameters-for-lime">3.2 Build exploitation parameters for LIME<a class="anchor" aria-label="anchor" href="#build-exploitation-parameters-for-lime"></a>
 </h3>
-<p>Unlike LB-SPR, LIME needs selectivity priors and a penalty to
-constraint the potential estimated values of the fishing mortality from
-year to year (Rudd and Thorson, 2017). Rudd and Thorson, 2017 therefore
-suggests to calculate the SL50 as the halfway length between the first
-one observed in the length composition and that of the mode. Then SL95
-is calculated as <code>SL50 * 1.15</code>, in the same fashion as
-defined by Prince et al., 2022 for the maturation ogive. As for the
-fishing mortality prior, the default 0.2 value was taken (Rudd and
-Thorson, 2017).</p>
+<p>Unlike LB-SPR, LIME requires selectivity priors and a penalty that
+constrains year-to-year changes in estimated fishing mortality (Rudd and
+Thorson, 2017). Here, <code>SL50</code> is halfway between the smallest
+observed length class and the modal class. <code>SL95</code> is set to
+<code>SL50 * 1.15</code>, following the approach used by Prince et
+al. (2022) for the maturation ogive. <code>sigmaF</code> uses the
+default value of <code>0.2</code> from Rudd and Thorson (2017).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">summary_catch</span> <span class="op">&lt;-</span> <span class="va">catch_data</span><span class="op">$</span><span class="va">long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">MeanLength</span>, <span class="va">catch</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -188,12 +182,11 @@ Thorson, 2017).</p>
 <span><span class="co">#&gt; [1] 0.2</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="build-extra-detail-context">3.3 Build extra-detail context<a class="anchor" aria-label="anchor" href="#build-extra-detail-context"></a>
+<h3 id="build-the-remaining-lime-context">3.3 Build the remaining LIME context<a class="anchor" aria-label="anchor" href="#build-the-remaining-lime-context"></a>
 </h3>
-<p>Lime, being an age-structured model, needs to be told whether the
-provided selectivity and maturity is at length or at age. Additionally,
-we use this data structure to let LIME know that the steepness should be
-set to <code>h = 0.7</code></p>
+<p>As an age-structured model, LIME must be told whether selectivity and
+maturity are supplied by length or age. This list also sets steepness to
+<code>h = 0.7</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">extra_lht_details</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  binwidth <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -207,19 +200,16 @@ set to <code>h = 0.7</code></p>
 <div class="section level3">
 <h3 id="instantiate-and-run-lime">3.4 Instantiate and run LIME<a class="anchor" aria-label="anchor" href="#instantiate-and-run-lime"></a>
 </h3>
-<p>Similar to LB-SPR, if LIME is run with the flag <code>simul</code>
-set to TRUE, a population-dynamic simulation function is triggered,
-providing the following extra details for each time step:</p>
+<p>With <code>simul = TRUE</code>, the wrapper returns the following
+additional output for each time step:</p>
 <ul>
 <li>Observed catch-at-length</li>
-<li>Relative observed catch-at-length (each catch is divided by the
-maximum)</li>
-<li>Standardised <strong>age</strong> structure of the underlying fished
-population</li>
-<li>Standardised <strong>age</strong> structure of the underlying
-unfished population</li>
-<li>Standardised estimated catch-at-length as a result of applying the
-estimated selectivity to the estimated fished population</li>
+<li>Observed catch-at-length, scaled to sum to one</li>
+<li>Standardised fished and unfished population-at-age structures</li>
+<li>Standardised estimated catch-at-length after applying estimated
+selectivity to the fished population</li>
+<li>Standardised estimated catch-at-length after applying estimated
+selectivity to the unfished population</li>
 </ul>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Find SL50 and SL95 prior</span></span>
@@ -234,16 +224,13 @@ estimated selectivity to the estimated fished population</li>
 <div class="section level3">
 <h3 id="breaking-down-results">3.5 Breaking down results<a class="anchor" aria-label="anchor" href="#breaking-down-results"></a>
 </h3>
-<p>Results are provided in two flavors: i) <strong>evaluation</strong>
-where estimates of the model are held and ii)
-<strong>simulation</strong> where the aforementioned extra details can
-be found. Within this section, also the raw output yielded by the
-simulation function are provided, should you be interested in doing more
-with it.</p>
-<p>In addition, the estimate dataframe provides the confidence intervals
-of <code>F</code>, <code>SPR</code> and <code>R</code>(Recruitment) .
-These columns are prefixed by <code>lower</code> and <code>upper</code>,
-respectively.</p>
+<p>Results have two components: <strong>evaluation</strong>, which
+contains model estimates, and <strong>simulation</strong>, which
+contains the additional output. The latter also retains the raw LIME
+output.</p>
+<p>The estimates data frame also includes confidence intervals for
+<code>F</code>, <code>SPR</code>, and recruitment (<code>R</code>), with
+<code>lower_</code> and <code>upper_</code> prefixes.</p>
 <div class="section level4">
 <h4 id="estimates-dataframe">3.5.1 Estimates dataframe<a class="anchor" aria-label="anchor" href="#estimates-dataframe"></a>
 </h4>
@@ -254,26 +241,29 @@ respectively.</p>
 <div class="section level4">
 <h4 id="simulation-dataframes">3.5.2 Simulation dataframes<a class="anchor" aria-label="anchor" href="#simulation-dataframes"></a>
 </h4>
-<p>Below an example of the simulation dataframe for one single time
-step. The relevant columns are:</p>
+<p>The simulation output contains separate catch and population data
+frames. Their relevant columns are:</p>
 <ul>
 <li>
-<code>unfished_pop</code>: length structure of the unfished
-population.</li>
+<code>unfished_pop</code>: age structure of the unfished
+population</li>
 <li>
-<code>fished_pop</code>: length structure of the fished
-population.</li>
+<code>fished_pop</code>: age structure of the fished population</li>
 <li>
-<code>expected_catch</code>: estimated catch yielded by the
-estimated fished population and selectivity.</li>
+<code>unfished_vul</code>: estimated catch from the unfished
+population after applying selectivity</li>
+<li>
+<code>exp_catch</code>: estimated catch from the fished population
+after applying selectivity</li>
 <li>
 <code>real_catch</code>: observed catch in absolute numbers</li>
 <li>
-<code>relative_catch</code>: Relative-to-maximum observed catch</li>
+<code>relative_catch</code>: observed catch scaled to sum to
+one</li>
 </ul>
-<p>Unlike LB-SPR the estimated catch and population structures are
-provided separately because the former focuses on length while the
-latter pertains to age.</p>
+<p>Unlike LB-SPR, LIME returns catch and population structures
+separately because catch is described by length and population by
+age.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result_lime</span><span class="op">$</span><span class="va">simulation</span><span class="op">$</span><span class="va">model_info</span><span class="op">$</span><span class="va">catch</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span></code></pre></div>
@@ -306,10 +296,9 @@ shown below.</p>
 <div class="section level3">
 <h3 id="simulation-plot">4.2 Simulation plot<a class="anchor" aria-label="anchor" href="#simulation-plot"></a>
 </h3>
-<p>Below two different plots are displayed. The first one shows the
-estimated catch for the estimated fished length structured for year
-2015. The second one plots the estimated aged-based fished and unfished
-populations for the same year.</p>
+<p>The first plot shows estimated catch-at-length for the fished
+population in 2015. The second compares the fished and unfished
+population-at-age structures for the same year.</p>
 <div class="section level4">
 <h4 id="estimated-catch">4.2.1 Estimated catch<a class="anchor" aria-label="anchor" href="#estimated-catch"></a>
 </h4>
@@ -328,7 +317,7 @@ populations for the same year.</p>
 <span><span class="va">g</span></span></code></pre></div>
 </div>
 <div class="section level4">
-<h4 id="estimated-populations">4.2.1 Estimated populations<a class="anchor" aria-label="anchor" href="#estimated-populations"></a>
+<h4 id="estimated-populations">4.2.2 Estimated populations<a class="anchor" aria-label="anchor" href="#estimated-populations"></a>
 </h4>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">population_2015</span> <span class="op">&lt;-</span> <span class="va">result_lime</span><span class="op">$</span><span class="va">simulation</span><span class="op">$</span><span class="va">model_info</span><span class="op">$</span><span class="va">population</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -360,10 +349,11 @@ populations for the same year.</p>
 <ol style="list-style-type: decimal">
 <li>Rudd, M.B., Thorson, J.T., 2017. Accounting for Variability and
 Biases in Data-limited Fisheries Stock Assessment. Canadian Journal of
-Fisheries and Aquatic Sciences 75, 1019–1035. <a href="https://doi.org/10.1139/cjfas-2017-0143" class="external-link uri">https://doi.org/10.1139/cjfas-2017-0143</a> 2 . Thorson,
-J.T., Jensen, O.P., Zipkin, E.F., 2014. How variable is recruitment for
-exploited marine fishes? A hierarchical model for testing life history
-theory. Can. J. Fish. Aquat. Sci. 71, 973–983. <a href="https://doi.org/10.1139/cjfas-2013-0645" class="external-link uri">https://doi.org/10.1139/cjfas-2013-0645</a>
+Fisheries and Aquatic Sciences 75, 1019–1035. <a href="https://doi.org/10.1139/cjfas-2017-0143" class="external-link uri">https://doi.org/10.1139/cjfas-2017-0143</a>
+</li>
+<li>Thorson, J.T., Jensen, O.P., Zipkin, E.F., 2014. How variable is
+recruitment for exploited marine fishes? A hierarchical model for
+testing life history theory. Can. J. Fish. Aquat. Sci. 71, 973–983. <a href="https://doi.org/10.1139/cjfas-2013-0645" class="external-link uri">https://doi.org/10.1139/cjfas-2013-0645</a>
 </li>
 <li>Prince, J., Harford, W.J., Taylor, B.M., Lindfield, S.J., 2022.
 Standard histological techniques systematically under‐estimate the size

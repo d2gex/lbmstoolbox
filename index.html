@@ -51,36 +51,39 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9"><p><strong>Note</strong>: There is currently a problem with LIME and its <code>Matrix</code> package dependency. Later updates on <code>Matrix</code> did remove functions that other R packages depends on, hence provoking a <em>function ‘sexp_as_cholmod_sparse’ not provided by package ‘Matrix’</em> error. A similar error for matrix-client libraries was reported <a href="https://github.com/stuart-lab/signac/issues/1596" class="external-link">here</a>. For now, some cells within the LIME’s vignette have been prevented from running to avoid breaking the rendering with an unrecoverable error. This issue will be fixed in the coming weeks.</p>
-<div class="section level1">
+  <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="lbmstoolbox">lbmstoolbox<a class="anchor" aria-label="anchor" href="#lbmstoolbox"></a>
 </h1></div>
-<p>This toolbox integrates and provides a unified wrapper for two widely-used length-based fisheries evaluation methods: <a href="https://github.com/AdrianHordyk/LBSPR" class="external-link">LB-SPR</a> (Hordyk et al., 2015a, 2015b, 2016) and <a href="https://github.com/merrillrudd/LIME" class="external-link">LIME</a> (Rudd and Thorson, 2017). It also introduces several enhancements to improve usability and functionality, including:</p>
+<div class="section level2">
+<h2 id="lime-vignette">LIME vignette<a class="anchor" aria-label="anchor" href="#lime-vignette"></a>
+</h2>
+<p>The LIME model-fitting chunks are currently disabled. A <code>Matrix</code> compatibility issue can otherwise interrupt rendering with the error <code>function 'sexp_as_cholmod_sparse' not provided by package 'Matrix'</code>. The data-preparation and parameter-setting chunks still run.</p>
+<p>This toolbox provides a unified interface to two widely used length-based fisheries assessment methods: <a href="https://github.com/AdrianHordyk/LBSPR" class="external-link">LB-SPR</a> (Hordyk et al., 2015a, 2015b, 2016) and <a href="https://github.com/merrillrudd/LIME" class="external-link">LIME</a> (Rudd and Thorson, 2017). It also introduces several enhancements to improve usability and output access:</p>
 <ol style="list-style-type: decimal">
 <li>
-<strong>Streamlined Interface</strong>: Both models now share a consistent interface, simplifying their use and integration.</li>
+<strong>Common interface:</strong> Both models use the same high-level workflow.</li>
 <li>
-<strong>Full LB-SPR Features</strong>: In addition to generating standard estimates, LB-SPR now re-runs its internal simulation function to provide detailed outputs on the estimated fished and unfished catch length composition, as well as the corresponding population length structure. These features were already available in the model however the wrapper exposes them as natural outputs.</li>
+<strong>LB-SPR simulation output:</strong> In addition to standard estimates, the wrapper runs LB-SPR’s internal simulator and returns estimated fished and unfished catch-at-length and population-at-length structures. These outputs are available in LB-SPR but are exposed here as standard results.</li>
 <li>
-<strong>Modified LIME Features</strong>: The version of <a href="https://github.com/d2gex/LIME" class="external-link">LIME</a> used here has been forked and its TMB template modified to provide the unfished population length structure.</li>
-<li>Likewise, this wrapper on LIME provides the estimated fished catch length composition but not the unfished one. Furthermore, both fished and unfished population length structures are now outputs in the age domain, reflecting LIME’s fully age-structured modeling approach. While these features were already inherent to LIME, this wrapper makes them more accessible as standard outputs.</li>
+<strong>LIME simulation output:</strong> The bundled fork of <a href="https://github.com/d2gex/LIME" class="external-link">LIME</a> modifies its TMB template to return the unfished population structure. The wrapper also returns estimated fished and unfished catch-at-length and fished and unfished population-at-age structures.</li>
 <li>
-<strong>Enhancing robustness of results</strong>: Confidence intervals are now included with key evaluation metrics such as <code>SPR</code> and <code>FM</code> for LB-SPR and <code>SPR</code>, <code>F</code> and <code>R</code> for LIME.</li>
+<strong>Uncertainty intervals:</strong> Confidence intervals are returned for <code>SPR</code> and <code>FM</code> in LB-SPR, and for <code>SPR</code>, <code>F</code>, and <code>R</code> in LIME.</li>
 </ol>
+</div>
 <div class="section level2">
 <h2 id="caveats">Caveats<a class="anchor" aria-label="anchor" href="#caveats"></a>
 </h2>
 <ol style="list-style-type: decimal">
-<li>All length classes in the simulation estimates for both models are truncated at the upper boundary to match the observed length classes. Note that this adjustment may affect model outputs, as model fits typically extend beyond the observed limits.</li>
-<li>Though the wrapper works for any time-step, the name of the column identifying this variable is named <code>years</code>. Likewise for the length variable the name of the column is <code>MeanLength</code>.</li>
+<li>Simulation output for both models is truncated at the upper observed length boundary. This may affect results because fitted distributions commonly extend beyond the observed range.</li>
+<li>The wrapper accepts any time step. In the long input data, the time-step column must be named <code>year</code> and the length-class column must be named <code>MeanLength</code>.</li>
 </ol>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>This R package can be installed through the devtools as follows:</p>
+<p>Install the package with <code>devtools</code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>  <span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"https://github.com/d2gex/lbmstoolbox"</span>, dep<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"d2gex/lbmstoolbox"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -97,7 +100,6 @@
 </ol>
 </div>
 </div>
-
   </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
