@@ -1,39 +1,32 @@
-**Note**: There is currently a problem with LIME and its `Matrix` package dependency. Later updates on
-`Matrix` did remove functions that other R packages depends on, hence provoking a *function 'sexp_as_cholmod_sparse' 
-not provided by package 'Matrix'* error. A similar error for matrix-client libraries was reported [here](https://github.com/stuart-lab/signac/issues/1596).
-For now, some cells within the LIME's vignette have been prevented from running to avoid breaking the rendering with
-an unrecoverable error. This issue will be fixed in the coming weeks.
-
 # lbmstoolbox
 
-This toolbox integrates and provides a unified wrapper for two widely-used length-based fisheries evaluation methods: 
+## LIME vignette
+
+The LIME model-fitting chunks are currently disabled. A `Matrix` compatibility
+issue can otherwise interrupt rendering with the error `function
+'sexp_as_cholmod_sparse' not provided by package 'Matrix'`. The data-preparation
+and parameter-setting chunks still run.
+
+This toolbox provides a unified interface to two widely used length-based fisheries assessment methods:
 [LB-SPR](https://github.com/AdrianHordyk/LBSPR) (Hordyk et al., 2015a, 2015b, 2016) and
 [LIME](https://github.com/merrillrudd/LIME) (Rudd and Thorson, 2017). It also introduces several enhancements to improve 
-usability and functionality, including:
+usability and output access:
 
-1. **Streamlined Interface**: Both models now share a consistent interface, simplifying their use and integration.
-2. **Full LB-SPR Features**: In addition to generating standard estimates, LB-SPR now re-runs its internal simulation 
-function to provide detailed outputs on the estimated fished and unfished catch length composition, as well as the corresponding 
-population length structure. These features were already available in the model however the wrapper exposes them as natural outputs.
-3. **Modified LIME Features**: The version of [LIME](https://github.com/d2gex/LIME) used here has been forked and its TMB template modified to provide the unfished population
-length structure.
-5. Likewise, this wrapper on LIME provides the estimated fished catch length composition but not the unfished one. Furthermore,
-both fished and unfished population length structures are now outputs in the age domain, reflecting LIME's fully age-structured 
-modeling approach. While these features were already inherent to LIME, this wrapper makes them more accessible as standard outputs.
-6. **Enhancing robustness of results**: Confidence intervals are now included with key evaluation metrics such as `SPR` and `FM` for LB-SPR and `SPR`, `F` 
-and `R` for LIME.
+1. **Common interface:** Both models use the same high-level workflow.
+2. **LB-SPR simulation output:** In addition to standard estimates, the wrapper runs LB-SPR's internal simulator and returns estimated fished and unfished catch-at-length and population-at-length structures. These outputs are available in LB-SPR but are exposed here as standard results.
+3. **LIME simulation output:** The bundled fork of [LIME](https://github.com/d2gex/LIME) modifies its TMB template to return the unfished population structure. The wrapper also returns estimated fished and unfished catch-at-length and fished and unfished population-at-age structures.
+4. **Uncertainty intervals:** Confidence intervals are returned for `SPR` and `FM` in LB-SPR, and for `SPR`, `F`, and `R` in LIME.
 
 ## Caveats
 
-1. All length classes in the simulation estimates for both models are truncated at the upper boundary to match the observed 
-length classes. Note that this adjustment may affect model outputs, as model fits typically extend beyond the observed limits.
-2. Though the wrapper works for any time-step, the name of the column identifying this variable is named `years`. Likewise
-for the length variable the name of the column is `MeanLength`.
+1. Simulation output for both models is truncated at the upper observed length boundary. This may affect results because fitted distributions commonly extend beyond the observed range.
+2. The wrapper accepts any time step. In the long input data, the time-step column must be named `year` and the length-class column must be named `MeanLength`.
 
 ## Installation
-This R package can be installed through the devtools as follows:
-```r 
-  devtools::install_github("https://github.com/d2gex/lbmstoolbox", dep=TRUE)
+Install the package with `devtools`:
+
+```r
+devtools::install_github("d2gex/lbmstoolbox", dependencies = TRUE)
 ```
 
 ## References

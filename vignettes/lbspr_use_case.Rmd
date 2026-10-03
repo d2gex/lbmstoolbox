@@ -16,52 +16,47 @@ knitr::opts_chunk$set(
 ```{r, setup}
 library(magrittr) # required for this vignette to work
 ```
-# 1. Installing `lbmstoolbox` package
-For this vigenette to work the `lbmstoolbox` package  must be installed and exist in whatever R's libpath of yours. To do so you
-can install it widely on the system by using `devtools::install_github(..)` or locally by `renv::install`. if ran interactively,
-ensure that the working directory is set to the `vignettes` folder - use `setwd` as suits you best.
+# 1. Install `lbmstoolbox`
+
+To run this vignette, install `lbmstoolbox` in one of R's library paths. Install it system-wide with `devtools::install_github()` or locally with `renv::install()`. When running the source interactively, use the `vignettes` directory as the working directory so that the bundled data file can be found.
 
 # 2. Read sampling and biological data
-A data sample has been provided to showcase how both algorithm interfaces work. The first element of the list is the catch's
-length composition that the model will assess. This structure, in turn, stores two dataframes: i) a **long** one where years and
-lengths are laid as rows and ii) a **wide** one where years are set as columns and lengths as rows. Both dataframes contain `MeanLength`,
-the name of the column holding the length classes.
 
-The second element is a list with the biological parameters of the species being evaluated, which we will call `spp.demersal`.
+The bundled example contains catch and biological data. Its first element, `catch_data`, holds the catch length composition in two forms: a **long** data frame with year–length observations in rows, and a **wide** data frame with length classes in rows and years in columns. Both use `MeanLength` for the length-class column.
+
+The second element contains the biological parameters for the evaluated species.
 
 ```{r read_sampling_data}
 spp_sampling_details <- readRDS("data/spp_test_data.rds")
 ```
-## 2.1 Showcase long dataframe
+## 2.1 Long data frame
 ```{r long_dataframe_showcase}
 catch_data <- spp_sampling_details$catch_data
 catch_data$long %>%
   head(6)
 ```
-## 2.2 Showcase wide dataframe
+## 2.2 Wide data frame
 ```{r wide_dataframe_showcase}
 catch_data$wide %>%
   head(6)
 ```
-## 2.3 Showcase wide dataframe
+## 2.3 Biological parameters
 ```{r biological_parameters}
 spp_sampling_details$bio_params
 ```
 # 3. Run LB-SPR
 
-## 3.1 Build biological parameters required by LB-SPR
-Please visit [LBSPR documentation](https://adrianhordyk.github.io/LBSPR/articles/LBSPR.html) for further details. `fecb`
-defines the relationship between size and fecundity. By default, LB-SPR sets it to 3. We use the provided `b` exponent
-obtained from the weight-length relationship.
+## 3.1 Build biological parameters for LB-SPR
 
-The biological parameters here provided contains the union of those required by LB-SPR and LIME. Let's strip off LIME's
-specific parameters and build LBSPR'S missing ones.
+See the [LBSPR documentation](https://adrianhordyk.github.io/LBSPR/articles/LBSPR.html) for parameter definitions. `fecb` is the exponent in the size–fecundity relationship. LB-SPR defaults to `3`; here, it is set to the supplied exponent from the weight–length relationship.
+
+The example biological-parameter list contains fields for both LB-SPR and LIME. Remove the LIME-specific fields and derive LB-SPR's `mk` parameter.
 
 ```{r biological_parameters_lbspr}
 bio_params <- spp_sampling_details$bio_params
 
 # We need to provide MK
-bio_params$mk <- round(bio_params$M / bio_params$M, 2)
+bio_params$mk <- round(bio_params$M / bio_params$k, 2)
 # ... And get rid of those that not required
 bio_params$M <- NULL
 bio_params$t0 <- NULL
@@ -71,15 +66,13 @@ bio_params$rec_variability_sd <- NULL
 bio_params
 ```
 ## 3.2 Run LB-SPR
-If LB-SPR is run with the flag `simul` set to TRUE, re-runs the simulation function to provide extra details for each
-time step used as follows:
+With `simul = TRUE`, the wrapper runs LB-SPR's simulator for each time step and returns:
 
 - Observed catch-at-length
-- Relative observed catch-at-length (each catch is divided by the maximum)
-- Standardised length structure of the underlying fished population
-- Standardised length structure of the underlying unfished population
-- Standardised estimated catch as a result of applying the estimated selectivity to the estimated fished population
-- Standardised estimated catch as a result of applying the estimated selectivity to the estimated unfished population
+- Observed catch-at-length, scaled to sum to one
+- Standardised fished and unfished population-at-length structures
+- Standardised estimated catch after applying estimated selectivity to the fished population
+- Standardised estimated catch after applying estimated selectivity to the unfished population
 
 ```{r run_lbspr}
 iim_lbspr <- lbmstoolbox::LbsprLbms$new(
@@ -89,11 +82,9 @@ iim_lbspr <- lbmstoolbox::LbsprLbms$new(
 result_lbspr <- iim_lbspr$run(simul = TRUE)
 ```
 ## 3.3 Breaking down results
-Results are provided in two flavors: i) **evaluation** where estimates of the model are held and
-ii) **simulation** where the aforementioned extra details can be found. Within this section, also the raw output yielded by
-the simulation function are provided, should you be interested in doing more with it.
+Results have two components: **evaluation**, which contains model estimates, and **simulation**, which contains the additional simulation output. The latter also retains the raw LB-SPR simulation output.
 
-In addition, the estimate dataframe provides the confidence intervals of `FM` and `SPR`. These columns are prefixed by `lower` and `upper`, respectively.
+The estimates data frame also includes confidence intervals for `FM` and `SPR`, with `lower_` and `upper_` prefixes.
 
 ### 3.3.1 Estimates dataframe
 ```{r lbspr_estimates}
@@ -102,15 +93,14 @@ result_lbspr$evaluation$estimates %>%
 ```
 
 ### 3.3.2 Simulation dataframes
-Below an example of the simulation dataframe for one single time step. The relevant columns are:
+The simulation data frame includes the following columns for each time step:
 
-- `unfished_pop`: length structure of the unfished population.
-- `fished_pop`: length structure of the fished population.
-- `unfished_vul`: estimated catch yielded by the estimated unfished population and selectivity.
-- `expected_catch`: estimated catch yielded by the estimated fished population and selectivity.
+- `unfished_pop`: length structure of the unfished population
+- `fished_pop`: length structure of the fished population
+- `unfished_vul`: estimated catch from the unfished population after applying selectivity
+- `exp_catch`: estimated catch from the fished population after applying selectivity
 - `real_catch`: observed catch in absolute numbers
-- `relative_catch`: Relative-to-maximum observed catch
--
+- `relative_catch`: observed catch scaled to sum to one
 
 ```{r lbspr_simulation}
 result_lbspr$simulation$model_info %>%
@@ -135,8 +125,7 @@ g
 ```
 
 ## 4.2 Simulation plot
-Below two different plots are displayed. The first one shows the estimated catch from both the estimated fished and unfished
-length structured for year 2015. The second one plots the estimated fished and unfished populations for the same year.
+The first plot compares estimated catch from the fished and unfished populations in 2015. The second compares the corresponding population-at-length structures.
 
 ### 4.2.1 Estimated catch
 
@@ -163,7 +152,7 @@ g <- catch_2015 %>%
 g
 ```
 
-### 4.2.1 Estimated populations
+### 4.2.2 Estimated populations
 
 ```{r lbspr_estimate_population_plots, fig.width=8}
 population_2015 <- result_lbspr$simulation$model_info %>%
